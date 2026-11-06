@@ -1,8 +1,8 @@
 const BASE = "Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Отвечай на языке пользователя. Код давай полным и рабочим в блоках ```. Сегодня: ";
 const MODELS = {
-  deep: { model: "openai/gpt-oss-120b", reasoning_effort: "medium", max_tokens: 6000,
+  deep: { model: "openai/gpt-oss-120b", reasoning_effort: "high", max_tokens: 8000,
     extra: "Ты модель Deep 1: думай глубоко и по шагам, проверяй себя перед ответом." },
-  heroes: { model: "llama-3.1-8b-instant", max_tokens: 3000,
+  heroes: { model: "openai/gpt-oss-120b", reasoning_effort: "low", max_tokens: 6000,
     extra: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры." },
 };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json" } });
