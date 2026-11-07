@@ -102,40 +102,32 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
   <button id="close" type="button">Готово</button>
 </div></div>
 <script>
-const KEY = "lumia_chats_v1", MK = "lumia_model", UK = "lumia_use_v1", PK = "lumia_mem";
+const KEY = "lumia_chats_v1", MK = "lumia_model", PK = "lumia_mem";
 const NAMES = {deep: "Deep 1", heroes: "Heroes 1"};
 const $ = id => document.getElementById(id);
 let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false;
-try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; } catch (e) {}
+let srv = {left: 100, resetAt: 0}, did = "";
+try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; } catch (e) {}
+if (!did){
+  did = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2) + "0000000000";
+  try { localStorage.setItem("lumia_did", did); } catch (e) {}
+}
 if (!NAMES[cur]) cur = "deep";
 if (chats.length) cid = chats[0].id;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 50))); } catch (e) {} };
 const chat = () => chats.find(c => c.id === cid);
 
-const resetAt = s => Math.ceil((s + 864e5) / 3e5) * 3e5;
-function usage(){
-  let u = {used: 0, start: 0};
-  try { u = JSON.parse(localStorage.getItem(UK)) || u; } catch (e) {}
-  if(u.start && Date.now() >= resetAt(u.start)) u = {used: 0, start: 0};
-  return u;
-}
-const left = () => Math.max(0, 100 - usage().used);
-const light = () => cur === "deep" && left() > 0 && left() < 30;
-function spend(c){
-  const u = usage(); if(!u.start) u.start = Date.now();
-  u.used = Math.min(100, u.used + c);
-  try { localStorage.setItem(UK, JSON.stringify(u)); } catch (e) {}
-}
-const cost = () => cur === "heroes" ? 4 : (light() ? 3 : 6);
+const left = () => srv.left;
+const light = () => cur === "deep" && srv.left > 0 && srv.left < 30;
 const hhmm = t => new Date(t).toLocaleTimeString("ru", {hour: "2-digit", minute: "2-digit"});
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
 
 function refresh(){
-  const l = left(), u = usage(), col = color(l);
+  const l = left(), col = color(l);
   $("lite").classList.toggle("show", light() && !liteHidden);
   const out = l <= 0;
   $("limit").classList.toggle("show", out);
-  if(out) $("limit").textContent = "Лимит закончился, попробуйте позже. Всё обновится в " + hhmm(resetAt(u.start)) + ".";
+  if(out) $("limit").textContent = "Лимит закончился, попробуйте позже. Всё обновится в " + hhmm(srv.resetAt) + ".";
   $("go").disabled = busy || out;
   $("pct").textContent = l + "%";
   $("pct").style.color = col;
@@ -143,7 +135,14 @@ function refresh(){
   $("bar").style.background = col;
   $("chip").firstChild.style.background = col;
   $("chip").lastChild.textContent = l + "%";
-  $("rst").textContent = u.start ? "Обновится в " + hhmm(resetAt(u.start)) : "Сутки начнутся с первого запроса";
+  $("rst").textContent = srv.resetAt ? "Обновится в " + hhmm(srv.resetAt) : "Сутки начнутся с первого запроса";
+}
+async function loadUsage(){
+  try{
+    const r = await fetch("/api/usage", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({did})});
+    const d = await r.json();
+    if(r.ok){ srv = {left: d.left, resetAt: d.resetAt}; refresh(); }
+  }catch(e){}
 }
 function setModel(k){
   cur = k;
@@ -152,7 +151,7 @@ function setModel(k){
   $("b-heroes").classList.toggle("on", k === "heroes");
   refresh();
 }
-const openSet = () => { $("mem").checked = memOn; refresh(); $("ov").classList.add("show"); };
+const openSet = () => { $("mem").checked = memOn; loadUsage(); refresh(); $("ov").classList.add("show"); };
 $("b-deep").onclick = () => setModel("deep");
 $("b-heroes").onclick = () => setModel("heroes");
 $("lx").onclick = () => { liteHidden = true; refresh(); };
@@ -232,38 +231,40 @@ function memory(){
     return "- " + c.title + (q ? ": " + q.content.slice(0, 80) : "");
   }).join("\n");
 }
-async function ask(model, msgs, lt){
+async function ask(model, msgs){
   const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({model, light: lt, memory: memory(), messages: msgs.map(({role, content}) => ({role, content}))})});
+    body: JSON.stringify({did, model, memory: memory(), messages: msgs.map(({role, content}) => ({role, content}))})});
   const d = await r.json().catch(() => ({}));
-  if(!r.ok) throw {code: r.status, message: d.error};
-  return d.text;
+  if(!r.ok) throw {code: r.status, data: d};
+  return d;
 }
 async function send(){
   const text = $("in").value.trim();
   if(!text || busy || left() <= 0) return;
-  const c0 = cost(), lt = light();
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: text}); save(); renderAll();
-  const body = bubble("assistant", "Думаю…", NAMES[cur] + (lt ? " (облегчённый)" : ""));
+  const body = bubble("assistant", "Думаю…", NAMES[cur] + (light() ? " (облегчённый)" : ""));
   try{
-    const out = await ask(cur, c.msgs, lt);
-    c.msgs.push({role: "assistant", content: out, model: NAMES[cur] + (lt ? " (облегчённый)" : "")}); save();
-    spend(c0);
-    fill(body, out);
+    const d = await ask(cur, c.msgs);
+    c.msgs.push({role: "assistant", content: d.text, model: NAMES[cur] + (d.light ? " (облегчённый)" : "")}); save();
+    srv = {left: d.left, resetAt: d.resetAt};
+    fill(body, d.text);
   }catch(e){
     c.msgs.pop(); save();
-    fill(body, e && e.code === 429 ? "Слишком много запросов, подожди немного." : "Не получилось ответить. Попробуй ещё раз.");
+    if(e && e.data && e.data.limit){ srv = {left: 0, resetAt: e.data.resetAt}; renderAll(); $("in").value = text; }
+    else fill(body, e && e.code === 429 ? "Слишком много запросов, подожди немного." : "Не получилось ответить. Попробуй ещё раз.");
   }
   busy = false; refresh(); $("in").focus();
 }
 $("go").onclick = send;
 $("in").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey && innerWidth > 760){ e.preventDefault(); send(); } });
 $("in").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px"; });
+window.addEventListener("focus", loadUsage);
 setModel(cur);
 renderAll();
+loadUsage();
 </script>
 </body>
 </html>
