@@ -2,7 +2,6 @@
   "name": "lumiaai",
   "main": "src/src/worker.js",
   "compatibility_date": "2025-09-01",
-  "assets": {
-    "directory": "./public"
-  }
+  "assets": { "directory": "./public" },
+  "d1_databases": [{ "binding": "DB", "database_name": "lumia-db", "database_id": "85eaed4e-328f-4221-878a-4c3e744995c8" }]
 }
