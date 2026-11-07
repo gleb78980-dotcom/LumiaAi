@@ -7,6 +7,7 @@ const MODELS = {
   heroes: { model: "openai/gpt-oss-20b", reasoning_effort: "low", max_tokens: 3000,
     extra: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры." },
 };
+const LANGS = { ru: "Russian", en: "English", uk: "Ukrainian", es: "Spanish", de: "German", fr: "French", it: "Italian", pt: "Portuguese", pl: "Polish", tr: "Turkish", zh: "Simplified Chinese", ja: "Japanese", ko: "Korean", hi: "Hindi", th: "Thai" };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json" } });
 const resetAt = (s) => Math.ceil((s + 864e5) / 3e5) * 3e5;
 const view = (used, start) => ({ left: Math.max(0, 100 - used), resetAt: start ? resetAt(start) : 0 });
@@ -46,7 +47,8 @@ export default {
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 3000 : 1200) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Пустой вопрос" }, 400);
-    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + cfg.extra;
+    const L = LANGS[body.lang] || "Russian";
+    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + cfg.extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
     if (typeof body.memory === "string" && body.memory) {
       system += "\nО чём пользователь говорил с тобой в прошлых чатах (только для контекста, упоминай при необходимости):\n" + body.memory.slice(0, 600);
     }
