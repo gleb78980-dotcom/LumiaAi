@@ -8,18 +8,40 @@ const MODELS = {
     extra: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры." },
 };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json" } });
+const resetAt = (s) => Math.ceil((s + 864e5) / 3e5) * 3e5;
+const view = (used, start) => ({ left: Math.max(0, 100 - used), resetAt: start ? resetAt(start) : 0 });
+
+async function getUsage(db, did) {
+  await db.prepare("CREATE TABLE IF NOT EXISTS usage (id TEXT PRIMARY KEY, used REAL NOT NULL DEFAULT 0, start INTEGER NOT NULL DEFAULT 0)").run();
+  const row = await db.prepare("SELECT used, start FROM usage WHERE id = ?").bind(did).first();
+  let used = row ? row.used : 0, start = row ? row.start : 0;
+  if (start && Date.now() >= resetAt(start)) { used = 0; start = 0; }
+  return { used, start };
+}
+async function saveUsage(db, did, used, start) {
+  await db.prepare("INSERT INTO usage (id, used, start) VALUES (?1, ?2, ?3) ON CONFLICT(id) DO UPDATE SET used = ?2, start = ?3").bind(did, used, start).run();
+}
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/chat") return json({ error: "Не найдено" }, 404);
+    if (url.pathname !== "/api/chat" && url.pathname !== "/api/usage") return json({ error: "Не найдено" }, 404);
     if (request.method !== "POST") return json({ error: "Нужен POST-запрос" }, 405);
-    const key = env.GROQ_API_KEY;
-    if (!key) return json({ error: "Нет ключа GROQ_API_KEY" }, 500);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "Неверный запрос" }, 400); }
-    const mk = body.model === "deep" && body.light ? "light" : body.model;
-    const cfg = MODELS[mk] || MODELS.heroes;
+    const did = typeof body.did === "string" && /^[A-Za-z0-9-]{16,64}$/.test(body.did) ? body.did : null;
+    if (!did) return json({ error: "Нет кода устройства" }, 400);
+    if (!env.DB) return json({ error: "База данных не подключена" }, 500);
+    let { used, start } = await getUsage(env.DB, did);
+    if (url.pathname === "/api/usage") return json(view(used, start));
+
+    if (100 - used <= 0) return json({ limit: true, error: "Лимит закончился", left: 0, resetAt: resetAt(start) }, 429);
+    const key = env.GROQ_API_KEY;
+    if (!key) return json({ error: "Нет ключа GROQ_API_KEY" }, 500);
+    const isDeep = body.model === "deep";
+    const light = isDeep && 100 - used < 30;
+    const cost = isDeep ? (light ? 3 : 6) : 4;
+    const cfg = MODELS[isDeep ? (light ? "light" : "deep") : "heroes"];
     const hist = (Array.isArray(body.messages) ? body.messages.slice(-6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 3000 : 1200) }));
@@ -41,7 +63,10 @@ export default {
       let text = (data.choices && data.choices[0] && data.choices[0].message.content) || "";
       text = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
       if (!text) text = "Модель не успела закончить ответ. Задай вопрос короче или выбери Heroes 1.";
-      return json({ text });
+      used = Math.min(100, used + cost);
+      if (!start) start = Date.now();
+      await saveUsage(env.DB, did, used, start);
+      return json({ text, light, ...view(used, start) });
     } catch (e) {
       return json({ error: "Не удалось связаться с Groq" }, 502);
     }
