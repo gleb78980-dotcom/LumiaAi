@@ -10,18 +10,19 @@
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;overflow:hidden}
-button{font:inherit;color:inherit;cursor:pointer}
+button,select{font:inherit;color:inherit;cursor:pointer}
 a{color:var(--ac);word-break:break-all}
 .side{width:260px;background:var(--sd);display:flex;flex-direction:column;padding:10px;gap:6px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;padding:4px 6px 8px}
+.brand svg{width:28px;height:28px}
 #new{border:1px solid var(--bd);background:none;padding:10px 12px;border-radius:12px;text-align:left;font-weight:600}
-#new:hover,.it:hover{background:var(--sf)}
+#new:hover,.it:hover,#set:hover{background:var(--sf)}
 #list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .it{display:flex;align-items:center;border-radius:10px}
 .it.on{background:var(--sf)}
 .it .t{flex:1;text-align:left;border:0;background:none;padding:9px 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:15px}
 .it .x{border:0;background:none;color:var(--mu);padding:6px 10px}
 #set{border:0;background:none;padding:10px;border-radius:10px;text-align:left}
-#set:hover{background:var(--sf)}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;height:100%}
 header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px}
 #menu{display:none;border:0;background:none;font-size:20px;padding:4px 8px}
@@ -44,6 +45,7 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .cb button{display:block;margin:6px 8px 0 auto;border:0;background:none;color:var(--mu);font-size:12px}
 .cb pre{margin:0;padding:6px 14px 14px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
 .empty{margin:auto;text-align:center;color:var(--mu)}
+.empty svg{width:76px;height:76px;margin-bottom:10px}
 .empty b{display:block;font-size:30px;color:var(--tx);margin-bottom:4px}
 .foot{width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px))}
 #limit{display:none;margin-bottom:8px;padding:9px 14px;border-radius:12px;background:var(--sf);font-size:14px}
@@ -54,7 +56,7 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 #go:disabled{opacity:.3}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;padding:16px}
 .ov.show{display:flex}
-.card{background:var(--bg);border-radius:20px;padding:20px;width:100%;max-width:380px}
+.card{background:var(--bg);border-radius:20px;padding:20px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto}
 .card h2{margin:0 0 14px;font-size:18px}
 .row{margin:12px 0}
 .pb{height:10px;background:var(--sf);border-radius:5px;overflow:hidden;margin-top:6px}
@@ -62,6 +64,9 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 .tg{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tg input{width:20px;height:20px}
 .small{font-size:13px;color:var(--mu)}
+#lsel{background:var(--sf);border:0;border-radius:10px;padding:8px 10px}
+.lg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lg button{padding:11px;border:1px solid var(--bd);background:var(--sf);border-radius:12px}
 #close{margin-top:10px;width:100%;border:0;background:var(--tx);color:var(--bg);padding:10px;border-radius:12px;font-weight:600}
 @media(max-width:760px){
 .side{position:fixed;z-index:10;inset:0 auto 0 0;transform:translateX(-100%);transition:transform .2s;padding-top:calc(10px + env(safe-area-inset-top,0px))}
@@ -71,9 +76,10 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 </head>
 <body>
 <aside class="side" id="side">
-  <button id="new" type="button">＋ Новый чат</button>
+  <div class="brand"><span id="blogo"></span>Lumia Ai</div>
+  <button id="new" type="button"><b>＋</b> <span data-i="0"></span></button>
   <div id="list"></div>
-  <button id="set" type="button">⚙ Настройки</button>
+  <button id="set" type="button">⚙ <span data-i="1"></span></button>
 </aside>
 <div class="main">
   <header>
@@ -84,30 +90,56 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
     </div>
     <button id="chip" type="button"><i></i><span>100%</span></button>
   </header>
-  <div id="lite"><span>Осталось меньше 30%: Deep 1 работает на облегчённой модели. Запрос стоит 3% вместо 6%.</span><button id="lx" type="button">✕</button></div>
+  <div id="lite"><span data-i="4"></span><button id="lx" type="button">✕</button></div>
   <div id="msgs"></div>
   <div class="foot">
     <div id="limit"></div>
     <div class="bar">
-      <textarea id="in" rows="1" placeholder="Напиши, что нужно…"></textarea>
+      <textarea id="in" rows="1"></textarea>
       <button id="go" type="button">↑</button>
     </div>
   </div>
 </div>
 <div class="ov" id="ov"><div class="card">
-  <h2>Настройки</h2>
+  <h2 data-i="1"></h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
-    <div class="small" style="margin-top:6px">Остаток запросов на сегодня. Heroes 1 — 4%, Deep 1 — 6% (на облегчённой модели 3%).</div></div>
-  <div class="row tg"><span>Помнить прошлые чаты</span><input type="checkbox" id="mem"></div>
-  <button id="close" type="button">Готово</button>
+    <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% · Deep 1 — 6% (3%)</div></div>
+  <div class="row tg"><span data-i="8"></span><input type="checkbox" id="mem"></div>
+  <div class="row tg"><span>🌐</span><select id="lsel"></select></div>
+  <button id="close" type="button" data-i="9"></button>
+</div></div>
+<div class="ov" id="lov"><div class="card">
+  <h2>🌐 Language</h2>
+  <div class="lg" id="lg"></div>
 </div></div>
 <script>
-const KEY = "lumia_chats_v1", MK = "lumia_model", PK = "lumia_mem";
+const KEY = "lumia_chats_v1", MK = "lumia_model", PK = "lumia_mem", LK = "lumia_lang";
 const NAMES = {deep: "Deep 1", heroes: "Heroes 1"};
+const LANGS = [["ru","Русский"],["en","English"],["uk","Українська"],["es","Español"],["de","Deutsch"],["fr","Français"],["it","Italiano"],["pt","Português"],["pl","Polski"],["tr","Türkçe"],["zh","中文"],["ja","日本語"],["ko","한국어"],["hi","हिन्दी"],["th","ไทย"]];
+// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка
+const T = {
+ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённая модель, 3% за запрос","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
+en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter model, 3% per request","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
+uk:["Новий чат","Налаштування","Напиши, що потрібно…","Чим можу допомогти?","Менше 30%: полегшена модель, 3% за запит","Ліміт вичерпано. Оновиться о {t}","Залишилось сьогодні","Оновиться о {t}","Пам’ятати минулі чати","Готово","Думаю…","Не вдалося відповісти. Спробуй ще раз."],
+es:["Nuevo chat","Ajustes","Escribe aquí…","¿En qué puedo ayudarte?","Menos del 30%: modelo ligero, 3% por consulta","Límite alcanzado. Se restablece a las {t}","Restante hoy","Se restablece a las {t}","Recordar chats anteriores","Listo","Pensando…","Algo salió mal. Inténtalo de nuevo."],
+de:["Neuer Chat","Einstellungen","Schreib hier…","Wie kann ich helfen?","Unter 30 %: leichteres Modell, 3 % pro Anfrage","Limit erreicht. Zurücksetzung um {t}","Heute übrig","Zurücksetzung um {t}","Frühere Chats merken","Fertig","Denke nach…","Etwas ist schiefgelaufen. Versuch es erneut."],
+fr:["Nouveau chat","Paramètres","Écris ici…","Comment puis-je aider ?","Moins de 30 % : modèle allégé, 3 % par demande","Limite atteinte. Réinitialisation à {t}","Restant aujourd’hui","Réinitialisation à {t}","Se souvenir des chats passés","Terminé","Je réfléchis…","Une erreur est survenue. Réessaie."],
+it:["Nuova chat","Impostazioni","Scrivi qui…","Come posso aiutarti?","Meno del 30%: modello leggero, 3% a richiesta","Limite raggiunto. Si azzera alle {t}","Rimasto oggi","Si azzera alle {t}","Ricorda le chat passate","Fatto","Sto pensando…","Qualcosa è andato storto. Riprova."],
+pt:["Novo chat","Configurações","Escreva aqui…","Como posso ajudar?","Menos de 30%: modelo leve, 3% por pedido","Limite atingido. Reinicia às {t}","Restante hoje","Reinicia às {t}","Lembrar conversas anteriores","Concluído","Pensando…","Algo deu errado. Tente novamente."],
+pl:["Nowy czat","Ustawienia","Napisz tutaj…","W czym mogę pomóc?","Poniżej 30%: lżejszy model, 3% za zapytanie","Limit wyczerpany. Odnowi się o {t}","Pozostało dziś","Odnowi się o {t}","Pamiętaj poprzednie czaty","Gotowe","Myślę…","Coś poszło nie tak. Spróbuj ponownie."],
+tr:["Yeni sohbet","Ayarlar","Buraya yaz…","Nasıl yardımcı olabilirim?","%30’un altı: hafif model, istek başına %3","Limit doldu. {t} saatinde yenilenir","Bugün kalan","{t} saatinde yenilenir","Önceki sohbetleri hatırla","Tamam","Düşünüyorum…","Bir şeyler ters gitti. Tekrar dene."],
+zh:["新对话","设置","在此输入…","有什么可以帮你？","剩余不足30%：使用轻量模型，每次消耗3%","额度已用完，将于{t}重置","今日剩余","将于{t}重置","记住以前的对话","完成","思考中…","出了点问题，请重试。"],
+ja:["新しいチャット","設定","ここに入力…","何をお手伝いしましょうか？","残り30%未満：軽量モデル、1回3%","上限に達しました。{t}にリセットされます","今日の残り","{t}にリセット","過去のチャットを記憶","完了","考え中…","問題が発生しました。もう一度お試しください。"],
+ko:["새 채팅","설정","여기에 입력…","무엇을 도와드릴까요?","30% 미만: 경량 모델, 요청당 3%","한도에 도달했습니다. {t}에 초기화됩니다","오늘 남은 양","{t}에 초기화","이전 채팅 기억하기","완료","생각 중…","문제가 발생했습니다. 다시 시도하세요."],
+hi:["नई चैट","सेटिंग्स","यहाँ लिखें…","मैं कैसे मदद कर सकता हूँ?","30% से कम: हल्का मॉडल, प्रति अनुरोध 3%","सीमा पूरी हो गई। {t} पर रीसेट होगी","आज बचा","{t} पर रीसेट","पिछली चैट याद रखें","हो गया","सोच रहा हूँ…","कुछ गलत हो गया। फिर से कोशिश करें।"],
+th:["แชทใหม่","การตั้งค่า","พิมพ์ที่นี่…","ให้ช่วยอะไรดี?","เหลือไม่ถึง 30%: ใช้โมเดลแบบเบา 3% ต่อคำขอ","ถึงขีดจำกัดแล้ว รีเซ็ตเวลา {t}","เหลือวันนี้","รีเซ็ตเวลา {t}","จดจำแชทก่อนหน้า","เสร็จสิ้น","กำลังคิด…","เกิดข้อผิดพลาด ลองอีกครั้ง"]
+};
+const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19c37d"/><stop offset="1" stop-color="#6c5ce7"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#lg1)"/><path d="M32 11c1.7 10.5 8.5 17.3 19 19-10.5 1.7-17.3 8.5-19 19-1.7-10.5-8.5-17.3-19-19 10.5-1.7 17.3-8.5 19-19z" fill="#fff"/><circle cx="48" cy="16" r="3" fill="#fff" opacity=".8"/></svg>';
 const $ = id => document.getElementById(id);
 let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false;
-let srv = {left: 100, resetAt: 0}, did = "";
-try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; } catch (e) {}
+let srv = {left: 100, resetAt: 0}, did = "", lang = "";
+try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; lang = localStorage.getItem(LK) || ""; } catch (e) {}
+if (!T[lang]) lang = "";
 if (!did){
   did = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2) + "0000000000";
   try { localStorage.setItem("lumia_did", did); } catch (e) {}
@@ -116,10 +148,11 @@ if (!NAMES[cur]) cur = "deep";
 if (chats.length) cid = chats[0].id;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 50))); } catch (e) {} };
 const chat = () => chats.find(c => c.id === cid);
+const t = (i, v) => { const s = (T[lang] || T.en)[i]; return v === undefined ? s : s.replace("{t}", v); };
 
 const left = () => srv.left;
 const light = () => cur === "deep" && srv.left > 0 && srv.left < 30;
-const hhmm = t => new Date(t).toLocaleTimeString("ru", {hour: "2-digit", minute: "2-digit"});
+const hhmm = x => new Date(x).toLocaleTimeString(lang || "ru", {hour: "2-digit", minute: "2-digit"});
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
 
 function refresh(){
@@ -127,7 +160,7 @@ function refresh(){
   $("lite").classList.toggle("show", light() && !liteHidden);
   const out = l <= 0;
   $("limit").classList.toggle("show", out);
-  if(out) $("limit").textContent = "Лимит закончился, попробуйте позже. Всё обновится в " + hhmm(srv.resetAt) + ".";
+  if(out) $("limit").textContent = t(5, hhmm(srv.resetAt));
   $("go").disabled = busy || out;
   $("pct").textContent = l + "%";
   $("pct").style.color = col;
@@ -135,7 +168,19 @@ function refresh(){
   $("bar").style.background = col;
   $("chip").firstChild.style.background = col;
   $("chip").lastChild.textContent = l + "%";
-  $("rst").textContent = srv.resetAt ? "Обновится в " + hhmm(srv.resetAt) : "Сутки начнутся с первого запроса";
+  $("rst").textContent = srv.resetAt ? t(7, hhmm(srv.resetAt)) : "";
+}
+function ui(){
+  document.documentElement.lang = lang || "ru";
+  document.querySelectorAll("[data-i]").forEach(e => e.textContent = t(+e.dataset.i));
+  $("in").placeholder = t(2);
+  refresh(); renderMsgs();
+}
+function setLang(c){
+  lang = c;
+  try { localStorage.setItem(LK, c); } catch (e) {}
+  $("lov").classList.remove("show"); $("lsel").value = c;
+  ui();
 }
 async function loadUsage(){
   try{
@@ -159,14 +204,20 @@ $("set").onclick = openSet;
 $("chip").onclick = openSet;
 $("close").onclick = () => $("ov").classList.remove("show");
 $("mem").onchange = e => { memOn = e.target.checked; try { localStorage.setItem(PK, memOn ? "1" : "0"); } catch (x) {} };
+LANGS.forEach(([c, n]) => {
+  const o = document.createElement("option"); o.value = c; o.textContent = n; $("lsel").append(o);
+  const b = document.createElement("button"); b.type = "button"; b.textContent = n; b.onclick = () => setLang(c); $("lg").append(b);
+});
+$("lsel").onchange = e => setLang(e.target.value);
+$("blogo").innerHTML = LOGO;
 
 function link(href, text){
   const a = document.createElement("a");
   a.href = href; a.textContent = text; a.target = "_blank"; a.rel = "noopener noreferrer";
   return a;
 }
-function inl(p, t){
-  t.split(/(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s)<>"]+)/).forEach(s => {
+function inl(p, s0){
+  s0.split(/(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s)<>"]+)/).forEach(s => {
     if(!s) return;
     let n, m;
     if(s[0] === "`" && s.length > 2){ n = document.createElement("code"); n.textContent = s.slice(1, -1); }
@@ -183,8 +234,8 @@ function fill(el, text){
     if(i % 2){
       const code = part.replace(/^[^\n]*\n/, "").replace(/\n$/, "");
       const box = document.createElement("div"); box.className = "cb";
-      const btn = document.createElement("button"); btn.textContent = "Копировать"; btn.type = "button";
-      btn.onclick = () => { try { navigator.clipboard.writeText(code); btn.textContent = "Скопировано"; setTimeout(() => btn.textContent = "Копировать", 1500); } catch (e) {} };
+      const btn = document.createElement("button"); btn.textContent = "⧉"; btn.type = "button";
+      btn.onclick = () => { try { navigator.clipboard.writeText(code); btn.textContent = "✓"; setTimeout(() => btn.textContent = "⧉", 1500); } catch (e) {} };
       const pre = document.createElement("pre"); pre.textContent = code;
       box.append(btn, pre); el.append(box);
     } else if(part) inl(el, part);
@@ -193,7 +244,7 @@ function fill(el, text){
 function bubble(role, text, tag){
   const el = document.createElement("div");
   el.className = "m " + (role === "user" ? "u" : "a");
-  if(tag){ const t = document.createElement("span"); t.className = "tag"; t.textContent = tag; el.append(t); }
+  if(tag){ const g = document.createElement("span"); g.className = "tag"; g.textContent = tag; el.append(g); }
   const body = document.createElement("div"); fill(body, text); el.append(body);
   $("msgs").append(el);
   $("msgs").scrollTop = $("msgs").scrollHeight;
@@ -203,11 +254,11 @@ function renderList(){
   const l = $("list"); l.textContent = "";
   chats.forEach(c => {
     const row = document.createElement("div"); row.className = "it" + (c.id === cid ? " on" : "");
-    const t = document.createElement("button"); t.className = "t"; t.type = "button"; t.textContent = c.title;
-    t.onclick = () => { cid = c.id; renderAll(); $("side").classList.remove("open"); };
+    const b = document.createElement("button"); b.className = "t"; b.type = "button"; b.textContent = c.title;
+    b.onclick = () => { cid = c.id; renderAll(); $("side").classList.remove("open"); };
     const x = document.createElement("button"); x.className = "x"; x.type = "button"; x.textContent = "✕";
     x.onclick = () => { chats = chats.filter(k => k.id !== c.id); if(cid === c.id) cid = chats[0] ? chats[0].id : null; save(); renderAll(); };
-    row.append(t, x); l.append(row);
+    row.append(b, x); l.append(row);
   });
 }
 function renderMsgs(){
@@ -215,8 +266,8 @@ function renderMsgs(){
   const c = chat();
   if(!c || !c.msgs.length){
     const d = document.createElement("div"); d.className = "empty";
-    const b = document.createElement("b"); b.textContent = "Lumia Ai";
-    d.append(b, "Чем могу помочь?"); m.append(d); return;
+    d.innerHTML = LOGO + "<b>Lumia Ai</b>";
+    d.append(t(3)); m.append(d); return;
   }
   c.msgs.forEach(x => bubble(x.role, x.content, x.role === "assistant" ? x.model : null));
 }
@@ -233,7 +284,7 @@ function memory(){
 }
 async function ask(model, msgs){
   const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({did, model, memory: memory(), messages: msgs.map(({role, content}) => ({role, content}))})});
+    body: JSON.stringify({did, lang, model, memory: memory(), messages: msgs.map(({role, content}) => ({role, content}))})});
   const d = await r.json().catch(() => ({}));
   if(!r.ok) throw {code: r.status, data: d};
   return d;
@@ -245,16 +296,16 @@ async function send(){
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: text}); save(); renderAll();
-  const body = bubble("assistant", "Думаю…", NAMES[cur] + (light() ? " (облегчённый)" : ""));
+  const body = bubble("assistant", t(10), NAMES[cur] + (light() ? " ⚡" : ""));
   try{
     const d = await ask(cur, c.msgs);
-    c.msgs.push({role: "assistant", content: d.text, model: NAMES[cur] + (d.light ? " (облегчённый)" : "")}); save();
+    c.msgs.push({role: "assistant", content: d.text, model: NAMES[cur] + (d.light ? " ⚡" : "")}); save();
     srv = {left: d.left, resetAt: d.resetAt};
     fill(body, d.text);
   }catch(e){
     c.msgs.pop(); save();
     if(e && e.data && e.data.limit){ srv = {left: 0, resetAt: e.data.resetAt}; renderAll(); $("in").value = text; }
-    else fill(body, e && e.code === 429 ? "Слишком много запросов, подожди немного." : "Не получилось ответить. Попробуй ещё раз.");
+    else fill(body, t(11));
   }
   busy = false; refresh(); $("in").focus();
 }
@@ -262,9 +313,12 @@ $("go").onclick = send;
 $("in").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey && innerWidth > 760){ e.preventDefault(); send(); } });
 $("in").addEventListener("input", e => { e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 150) + "px"; });
 window.addEventListener("focus", loadUsage);
+$("lsel").value = lang || "ru";
 setModel(cur);
-renderAll();
+renderList();
+ui();
 loadUsage();
+if(!lang) $("lov").classList.add("show");
 </script>
 </body>
 </html>
