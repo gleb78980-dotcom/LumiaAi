@@ -28,6 +28,8 @@ header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-
 .sw{display:flex;background:var(--sf);border-radius:12px;padding:3px}
 .sw button{border:0;background:none;color:var(--mu);font-size:14px;font-weight:600;padding:6px 14px;border-radius:9px}
 .sw button.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+#chip{margin-left:auto;border:0;background:var(--sf);border-radius:14px;padding:5px 12px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+#chip i{width:10px;height:10px;border-radius:50%;background:#22c55e}
 #lite{display:none;margin:0 12px;padding:8px 12px;border-radius:12px;background:var(--sf);font-size:14px;color:var(--mu);align-items:center;gap:8px}
 #lite.show{display:flex}
 #lite span{flex:1}
@@ -55,8 +57,8 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 .card{background:var(--bg);border-radius:20px;padding:20px;width:100%;max-width:380px}
 .card h2{margin:0 0 14px;font-size:18px}
 .row{margin:12px 0}
-.pb{height:8px;background:var(--sf);border-radius:4px;overflow:hidden;margin-top:6px}
-.pb i{display:block;height:100%;background:var(--ac)}
+.pb{height:10px;background:var(--sf);border-radius:5px;overflow:hidden;margin-top:6px}
+.pb i{display:block;height:100%;background:#22c55e;transition:width .3s,background .3s}
 .tg{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tg input{width:20px;height:20px}
 .small{font-size:13px;color:var(--mu)}
@@ -80,8 +82,9 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
       <button id="b-deep" class="on" type="button">Deep 1</button>
       <button id="b-heroes" type="button">Heroes 1</button>
     </div>
+    <button id="chip" type="button"><i></i><span>100%</span></button>
   </header>
-  <div id="lite"><span>Осталось меньше 30%: Deep 1 работает в облегчённом режиме. Ответы короче, запрос стоит 3% вместо 6%.</span><button id="lx" type="button">✕</button></div>
+  <div id="lite"><span>Осталось меньше 30%: Deep 1 работает на облегчённой модели. Запрос стоит 3% вместо 6%.</span><button id="lx" type="button">✕</button></div>
   <div id="msgs"></div>
   <div class="foot">
     <div id="limit"></div>
@@ -94,7 +97,7 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 <div class="ov" id="ov"><div class="card">
   <h2>Настройки</h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
-    <div class="small" style="margin-top:6px">Остаток запросов на сегодня. Heroes 1 — 4%, Deep 1 — 6% (в облегчённом режиме 3%).</div></div>
+    <div class="small" style="margin-top:6px">Остаток запросов на сегодня. Heroes 1 — 4%, Deep 1 — 6% (на облегчённой модели 3%).</div></div>
   <div class="row tg"><span>Помнить прошлые чаты</span><input type="checkbox" id="mem"></div>
   <button id="close" type="button">Готово</button>
 </div></div>
@@ -125,16 +128,21 @@ function spend(c){
 }
 const cost = () => cur === "heroes" ? 4 : (light() ? 3 : 6);
 const hhmm = t => new Date(t).toLocaleTimeString("ru", {hour: "2-digit", minute: "2-digit"});
+const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
 
 function refresh(){
-  const l = left(), u = usage();
+  const l = left(), u = usage(), col = color(l);
   $("lite").classList.toggle("show", light() && !liteHidden);
   const out = l <= 0;
   $("limit").classList.toggle("show", out);
   if(out) $("limit").textContent = "Лимит закончился, попробуйте позже. Всё обновится в " + hhmm(resetAt(u.start)) + ".";
   $("go").disabled = busy || out;
   $("pct").textContent = l + "%";
+  $("pct").style.color = col;
   $("bar").style.width = l + "%";
+  $("bar").style.background = col;
+  $("chip").firstChild.style.background = col;
+  $("chip").lastChild.textContent = l + "%";
   $("rst").textContent = u.start ? "Обновится в " + hhmm(resetAt(u.start)) : "Сутки начнутся с первого запроса";
 }
 function setModel(k){
@@ -144,10 +152,12 @@ function setModel(k){
   $("b-heroes").classList.toggle("on", k === "heroes");
   refresh();
 }
+const openSet = () => { $("mem").checked = memOn; refresh(); $("ov").classList.add("show"); };
 $("b-deep").onclick = () => setModel("deep");
 $("b-heroes").onclick = () => setModel("heroes");
 $("lx").onclick = () => { liteHidden = true; refresh(); };
-$("set").onclick = () => { $("mem").checked = memOn; refresh(); $("ov").classList.add("show"); };
+$("set").onclick = openSet;
+$("chip").onclick = openSet;
 $("close").onclick = () => $("ov").classList.remove("show");
 $("mem").onchange = e => { memOn = e.target.checked; try { localStorage.setItem(PK, memOn ? "1" : "0"); } catch (x) {} };
 
@@ -237,7 +247,7 @@ async function send(){
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: text}); save(); renderAll();
-  const body = bubble("assistant", "Думаю…", NAMES[cur]);
+  const body = bubble("assistant", "Думаю…", NAMES[cur] + (lt ? " (облегчённый)" : ""));
   try{
     const out = await ask(cur, c.msgs, lt);
     c.msgs.push({role: "assistant", content: out, model: NAMES[cur] + (lt ? " (облегчённый)" : "")}); save();
