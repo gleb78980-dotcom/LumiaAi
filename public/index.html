@@ -5,49 +5,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lumia Ai</title>
 <style>
-:root{--bg:#fff;--sf:#f4f4f5;--sd:#f9f9fa;--tx:#202123;--mu:#6e6e80;--bd:#e5e5e8;--ac:#10a37f;--code:#f4f4f5;--ub:#ececf1}
-@media (prefers-color-scheme:dark){:root{--bg:#212121;--sf:#2f2f2f;--sd:#171717;--tx:#ececec;--mu:#9b9b9b;--bd:#3a3a3a;--ac:#19c37d;--code:#171717;--ub:#2f2f2f;color-scheme:dark}}
+:root{--bg:#faf9f5;--card:#fff;--sf:#f0eee6;--sd:#f5f4ed;--tx:#1f1e1d;--mu:#73726c;--bd:#e5e2d8;--ac:#d97757;--code:#f0eee6;--ub:#efece3}
+@media (prefers-color-scheme:dark){:root{--bg:#262624;--card:#30302e;--sf:#3a3937;--sd:#1f1e1d;--tx:#faf9f5;--mu:#a6a39a;--bd:#43423e;--ac:#d97757;--code:#1f1e1d;--ub:#30302e;color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--tx);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;overflow:hidden}
 button,select{font:inherit;color:inherit;cursor:pointer}
+svg{display:block}
 a{color:var(--ac);word-break:break-all}
-.side{width:260px;background:var(--sd);display:flex;flex-direction:column;padding:10px;gap:6px;flex-shrink:0}
-.brand{display:flex;align-items:center;gap:8px;font-weight:700;padding:4px 6px 8px}
+.ico{display:inline-flex}
+.side{width:260px;background:var(--sd);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:10px;gap:6px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:8px;font-weight:600;font-family:Georgia,"Times New Roman",serif;font-size:19px;padding:4px 6px 8px}
 .brand svg{width:28px;height:28px}
-#new{border:1px solid var(--bd);background:none;padding:10px 12px;border-radius:12px;text-align:left;font-weight:600}
+#new,#set{display:flex;align-items:center;gap:10px;border:0;background:none;padding:10px 12px;border-radius:10px;text-align:left}
+#new{font-weight:600}
 #new:hover,.it:hover,#set:hover{background:var(--sf)}
 #list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
 .it{display:flex;align-items:center;border-radius:10px}
 .it.on{background:var(--sf)}
 .it .t{flex:1;text-align:left;border:0;background:none;padding:9px 10px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:15px}
-.it .x{border:0;background:none;color:var(--mu);padding:6px 10px}
-#set{border:0;background:none;padding:10px;border-radius:10px;text-align:left}
+.it .x{border:0;background:none;color:var(--mu);padding:8px 10px}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;height:100%}
 header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px}
-#menu{display:none;border:0;background:none;font-size:20px;padding:4px 8px}
+#menu{display:none;border:0;background:none;padding:6px;border-radius:8px;color:var(--mu)}
 .sw{display:flex;background:var(--sf);border-radius:12px;padding:3px}
 .sw button{border:0;background:none;color:var(--mu);font-size:14px;font-weight:600;padding:6px 14px;border-radius:9px}
-.sw button.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.sw button.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 #mh{padding:0 14px 6px;font-size:13px;color:var(--mu)}
-#chip{margin-left:auto;border:0;background:var(--sf);border-radius:14px;padding:5px 12px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+#chip{margin-left:auto;border:1px solid var(--bd);background:var(--card);border-radius:14px;padding:5px 12px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
 #chip i{width:10px;height:10px;border-radius:50%;background:#22c55e}
 #lite{display:none;margin:0 12px;padding:8px 12px;border-radius:12px;background:var(--sf);font-size:14px;color:var(--mu);align-items:center;gap:8px}
 #lite.show{display:flex}
 #lite span{flex:1}
-#lite button{border:0;background:none;font-size:16px;color:var(--mu)}
+#lite button{border:0;background:none;color:var(--mu);padding:2px}
 #msgs{flex:1;overflow-y:auto;padding:12px;width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .m{overflow-wrap:anywhere;white-space:pre-wrap}
-.u{align-self:flex-end;max-width:85%;background:var(--ub);padding:8px 16px;border-radius:20px}
+.u{align-self:flex-end;max-width:85%;background:var(--ub);padding:8px 16px;border-radius:18px}
 .a{align-self:stretch}
 .tag{display:block;font-size:12px;font-weight:700;color:var(--mu);margin-bottom:2px}
 code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monospace,Menlo,Consolas,monospace}
 .cb{margin:10px 0;background:var(--code);border-radius:12px;overflow:hidden;white-space:normal}
-.cb button{display:block;margin:6px 8px 0 auto;border:0;background:none;color:var(--mu);font-size:12px}
+.cb button{display:block;margin:6px 8px 0 auto;border:0;background:none;color:var(--mu);padding:4px}
 .cb pre{margin:0;padding:6px 14px 14px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
 .empty{margin:auto;text-align:center;color:var(--mu)}
-.empty svg{width:76px;height:76px;margin-bottom:10px}
-.empty b{display:block;font-size:30px;color:var(--tx);margin-bottom:4px}
+.empty svg{width:76px;height:76px;margin:0 auto 10px}
+.empty b{display:block;font:500 32px Georgia,"Times New Roman",serif;color:var(--tx);margin-bottom:4px}
 .foot{position:relative;width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px))}
 #limit{display:none;margin-bottom:8px;padding:9px 14px;border-radius:12px;background:var(--sf);font-size:14px}
 #limit.show{display:block}
@@ -56,29 +58,32 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .ch{position:relative;background:var(--sf);border-radius:12px;font-size:13px;padding:6px 28px 6px 10px;max-width:190px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ch.p{padding:0;width:56px;height:56px}
 .ch img{width:56px;height:56px;object-fit:cover;display:block;border-radius:12px}
-.ch button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;line-height:18px;padding:0}
-.bar{display:flex;align-items:flex-end;gap:4px;background:var(--sf);border-radius:26px;padding:8px}
-#plus,#mic{border:0;background:none;font-size:20px;width:36px;height:36px;flex-shrink:0;color:var(--mu)}
-#mic.on{color:#ef4444}
-#pm{display:none;position:absolute;left:12px;bottom:calc(66px + env(safe-area-inset-bottom,0px));background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:5}
-#pm button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 16px;border-radius:10px;white-space:nowrap}
+.ch button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:18px;height:18px;padding:0;display:flex;align-items:center;justify-content:center}
+.bar{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:10px 10px 8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;background:none;color:var(--tx);padding:4px 2px;font:inherit;outline:none}
+.row2{display:flex;align-items:center;gap:4px;margin-top:4px}
+.sp{flex:1}
+#plus,#mic{border:0;background:none;width:36px;height:36px;border-radius:50%;color:var(--mu);display:flex;align-items:center;justify-content:center}
+#plus:hover,#mic:hover{background:var(--sf);color:var(--tx)}
+#mic.on{color:#fff;background:#dc2626}
+#go{border:0;background:var(--ac);color:#fff;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+#go:disabled{opacity:.35}
+#pm{display:none;position:absolute;left:12px;bottom:calc(112px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:5}
+#pm button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;padding:10px 16px;border-radius:10px;white-space:nowrap}
 #pm button:hover{background:var(--sf)}
-textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(--tx);padding:8px 4px;font:inherit;outline:none}
-#go{border:0;background:var(--tx);color:var(--bg);width:36px;height:36px;border-radius:50%;font-size:18px;flex-shrink:0}
-#go:disabled{opacity:.3}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;padding:16px}
 .ov.show{display:flex}
 .card{background:var(--bg);border-radius:20px;padding:20px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto}
-.card h2{margin:0 0 14px;font-size:18px}
+.card h2{margin:0 0 14px;font-size:18px;display:flex;align-items:center;gap:8px}
 .row{margin:12px 0}
 .pb{height:10px;background:var(--sf);border-radius:5px;overflow:hidden;margin-top:6px}
 .pb i{display:block;height:100%;background:#22c55e;transition:width .3s,background .3s}
 .tg{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.tg input{width:20px;height:20px}
+.tg input{width:20px;height:20px;accent-color:var(--ac)}
 .small{font-size:13px;color:var(--mu)}
 #lsel{background:var(--sf);border:0;border-radius:10px;padding:8px 10px}
 .lg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.lg button{padding:11px;border:1px solid var(--bd);background:var(--sf);border-radius:12px}
+.lg button{padding:11px;border:1px solid var(--bd);background:var(--card);border-radius:12px}
 #close{margin-top:10px;width:100%;border:0;background:var(--tx);color:var(--bg);padding:10px;border-radius:12px;font-weight:600}
 @media(max-width:760px){
 .side{position:fixed;z-index:10;inset:0 auto 0 0;transform:translateX(-100%);transition:transform .2s;padding-top:calc(10px + env(safe-area-inset-top,0px))}
@@ -89,13 +94,13 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 <body>
 <aside class="side" id="side">
   <div class="brand"><span id="blogo"></span>Lumia Ai</div>
-  <button id="new" type="button"><b>＋</b> <span data-i="0"></span></button>
+  <button id="new" type="button"><span class="ico" data-ic="pen"></span><span data-i="0"></span></button>
   <div id="list"></div>
-  <button id="set" type="button">⚙ <span data-i="1"></span></button>
+  <button id="set" type="button"><span class="ico" data-ic="sliders"></span><span data-i="1"></span></button>
 </aside>
 <div class="main">
   <header>
-    <button id="menu" type="button">☰</button>
+    <button id="menu" type="button" data-ic="menu"></button>
     <div class="sw">
       <button id="b-deep" class="on" type="button">Deep 1</button>
       <button id="b-heroes" type="button">Heroes 1</button>
@@ -103,7 +108,7 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
     <button id="chip" type="button"><i></i><span>100%</span></button>
   </header>
   <div id="mh"></div>
-  <div id="lite"><span data-i="4"></span><button id="lx" type="button">✕</button></div>
+  <div id="lite"><span data-i="4"></span><button id="lx" type="button" data-ic="x" data-s="16"></button></div>
   <div id="msgs"></div>
   <div class="foot">
     <div id="limit"></div>
@@ -113,13 +118,16 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
       <button id="pf" type="button"></button>
     </div>
     <div class="bar">
-      <button id="plus" type="button">＋</button>
       <textarea id="in" rows="1"></textarea>
-      <button id="mic" type="button">🎤</button>
-      <button id="go" type="button">↑</button>
+      <div class="row2">
+        <button id="plus" type="button" data-ic="plus"></button>
+        <span class="sp"></span>
+        <button id="mic" type="button" data-ic="mic"></button>
+        <button id="go" type="button" data-ic="up"></button>
+      </div>
     </div>
-    <input type="file" id="fi" accept="image/*" multiple hidden>
-    <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,text/*">
+    <input type="file" id="fi" accept="image/*,video/*" multiple hidden>
+    <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,.mp3,.wav,.m4a,.ogg,.flac,.webm,.mp4,.mpeg,.mpga,.obj,.stl,.glb,.gltf,.ply,text/*,audio/*">
   </div>
 </div>
 <div class="ov" id="ov"><div class="card">
@@ -127,11 +135,11 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
     <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% (2%) · Deep 1 — 6% (3%)</div></div>
   <div class="row tg"><span data-i="8"></span><input type="checkbox" id="mem"></div>
-  <div class="row tg"><span>🌐</span><select id="lsel"></select></div>
+  <div class="row tg"><span class="ico" data-ic="globe"></span><select id="lsel"></select></div>
   <button id="close" type="button" data-i="9"></button>
 </div></div>
 <div class="ov" id="lov"><div class="card">
-  <h2>🌐 Language</h2>
+  <h2><span class="ico" data-ic="globe"></span>Language</h2>
   <div class="lg" id="lg"></div>
 </div></div>
 <script>
@@ -139,7 +147,23 @@ const KEY = "lumia_chats_v1", MK = "lumia_model", PK = "lumia_mem", LK = "lumia_
 const NAMES = {deep: "Deep 1", heroes: "Heroes 1"};
 const LANGS = [["ru","Русский"],["en","English"],["uk","Українська"],["es","Español"],["de","Deutsch"],["fr","Français"],["it","Italiano"],["pt","Português"],["pl","Polski"],["tr","Türkçe"],["zh","中文"],["ja","日本語"],["ko","한국어"],["hi","हिन्दी"],["th","ไทย"]];
 const RL = {ru:"ru-RU",en:"en-US",uk:"uk-UA",es:"es-ES",de:"de-DE",fr:"fr-FR",it:"it-IT",pt:"pt-BR",pl:"pl-PL",tr:"tr-TR",zh:"zh-CN",ja:"ja-JP",ko:"ko-KR",hi:"hi-IN",th:"th-TH"};
-// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка, 12 фото, 13 файл, 14 нет микрофона, 15 фото недоступно
+const IC = {
+plus:'<path d="M12 5v14M5 12h14"/>',
+mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+stop:'<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>',
+up:'<path d="M12 19V5M5 12l7-7 7 7"/>',
+image:'<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.6"/><path d="M21 15l-5-5L5 21"/>',
+clip:'<path d="M21 11.5l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/>',
+menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+x:'<path d="M6 6l12 12M18 6L6 18"/>',
+sliders:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',
+globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
+};
+const ic = (n, s) => '<svg viewBox="0 0 24 24" width="' + (s || 20) + '" height="' + (s || 20) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>';
+// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка, 12 фото, 13 файл, 14 нет микрофона, 15 фото недоступно, 16 меню фото и видео, 17 меню файлы, 18 ошибка аудио
 const T = {
 ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
 en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter mode, cheaper requests (Deep 3%, Heroes 2%)","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
@@ -174,7 +198,24 @@ ko:["사진","파일","이 브라우저는 음성 입력을 지원하지 않습�
 hi:["फ़ोटो","फ़ाइल","यह ब्राउज़र वॉइस इनपुट का समर्थन नहीं करता। कीबोर्ड का माइक इस्तेमाल करें।","फ़ोटो विश्लेषण अस्थायी रूप से उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।"],
 th:["รูปภาพ","ไฟล์","เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง ใช้ไมโครโฟนบนคีย์บอร์ดแทน","การวิเคราะห์รูปภาพไม่พร้อมใช้งานชั่วคราว โปรดลองอีกครั้งในภายหลัง"]
 };
-for (const c in X) T[c].push(...X[c]);
+const X2 = {
+ru:["Фото и видео","Файлы, аудио, 3D","Не удалось расшифровать аудио: речь не найдена или сервис недоступен. Попробуйте позже."],
+en:["Photos & video","Files, audio, 3D","Couldn’t transcribe the audio: no speech found or the service is unavailable. Try again later."],
+uk:["Фото та відео","Файли, аудіо, 3D","Не вдалося розшифрувати аудіо: мову не знайдено або сервіс недоступний. Спробуйте пізніше."],
+es:["Fotos y vídeo","Archivos, audio, 3D","No se pudo transcribir el audio: no hay voz o el servicio no está disponible. Inténtalo más tarde."],
+de:["Fotos & Video","Dateien, Audio, 3D","Audio konnte nicht transkribiert werden: keine Sprache gefunden oder Dienst nicht verfügbar. Versuche es später erneut."],
+fr:["Photos et vidéo","Fichiers, audio, 3D","Impossible de transcrire l’audio : aucune parole détectée ou service indisponible. Réessaie plus tard."],
+it:["Foto e video","File, audio, 3D","Impossibile trascrivere l’audio: nessun parlato trovato o servizio non disponibile. Riprova più tardi."],
+pt:["Fotos e vídeo","Arquivos, áudio, 3D","Não foi possível transcrever o áudio: sem fala ou serviço indisponível. Tente mais tarde."],
+pl:["Zdjęcia i wideo","Pliki, audio, 3D","Nie udało się przepisać audio: brak mowy lub usługa niedostępna. Spróbuj później."],
+tr:["Fotoğraf ve video","Dosyalar, ses, 3D","Ses yazıya dökülemedi: konuşma bulunamadı veya hizmet kullanılamıyor. Daha sonra tekrar dene."],
+zh:["照片和视频","文件、音频、3D","无法转写音频：未检测到语音或服务不可用，请稍后再试。"],
+ja:["写真と動画","ファイル、音声、3D","音声を文字起こしできませんでした。音声が見つからないか、サービスが利用できません。後でお試しください。"],
+ko:["사진 및 동영상","파일, 오디오, 3D","오디오를 변환하지 못했습니다. 음성이 없거나 서비스를 사용할 수 없습니다. 나중에 다시 시도하세요."],
+hi:["फ़ोटो और वीडियो","फ़ाइलें, ऑडियो, 3D","ऑडियो ट्रांसक्राइब नहीं हो सका: बोली नहीं मिली या सेवा उपलब्ध नहीं है। बाद में प्रयास करें।"],
+th:["รูปภาพและวิดีโอ","ไฟล์ เสียง 3D","ถอดเสียงไม่สำเร็จ: ไม่พบเสียงพูดหรือบริการไม่พร้อมใช้งาน โปรดลองใหม่ภายหลัง"]
+};
+for (const c in X) T[c].push(...X[c], ...X2[c]);
 const H = {
 ru:["Heroes 1: для быстрых задач","Deep 1: для более сложных задач"],
 en:["Heroes 1: for quick tasks","Deep 1: for more complex tasks"],
@@ -194,6 +235,7 @@ th:["Heroes 1: สำหรับงานเร็ว","Deep 1: สำหรั
 };
 const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19c37d"/><stop offset="1" stop-color="#6c5ce7"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#lg1)"/><path d="M32 11c1.7 10.5 8.5 17.3 19 19-10.5 1.7-17.3 8.5-19 19-1.7-10.5-8.5-17.3-19-19 10.5-1.7 17.3-8.5 19-19z" fill="#fff"/><circle cx="48" cy="16" r="3" fill="#fff" opacity=".8"/></svg>';
 const $ = id => document.getElementById(id);
+document.querySelectorAll("[data-ic]").forEach(e => { e.innerHTML = ic(e.dataset.ic, +e.dataset.s || 20); });
 let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false;
 let srv = {left: 100, resetAt: 0}, did = "", lang = "";
 let pics = [], docs = [], rec = null;
@@ -235,8 +277,8 @@ function ui(){
   document.documentElement.lang = lang || "ru";
   document.querySelectorAll("[data-i]").forEach(e => e.textContent = t(+e.dataset.i));
   $("in").placeholder = t(2);
-  $("pp").textContent = "📷 " + t(12);
-  $("pf").textContent = "📎 " + t(13);
+  $("pp").innerHTML = ic("image") + "<span>" + t(16) + "</span>";
+  $("pf").innerHTML = ic("clip") + "<span>" + t(17) + "</span>";
   refresh(); renderMsgs();
 }
 function setLang(c){
@@ -293,15 +335,79 @@ function shrink(file){
     r.readAsDataURL(file);
   });
 }
+function frames(file, n){
+  return new Promise(res => {
+    const v = document.createElement("video"), url = URL.createObjectURL(file), out = [];
+    v.muted = true; v.playsInline = true; v.preload = "auto"; v.src = url;
+    const done = () => { URL.revokeObjectURL(url); res(out); };
+    v.onerror = done;
+    v.onloadedmetadata = async () => {
+      const d = v.duration || 1, w = v.videoWidth || 640, h = v.videoHeight || 360, k = Math.min(1, 896 / Math.max(w, h));
+      const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+      const g = c.getContext("2d");
+      for(let i = 0; i < n; i++){
+        await new Promise(r => { v.onseeked = r; setTimeout(r, 2000); v.currentTime = Math.max(0, Math.min(d - 0.05, d * (i + 0.5) / n)); });
+        try { g.drawImage(v, 0, 0, c.width, c.height); out.push(c.toDataURL("image/jpeg", .8)); } catch (e) {}
+      }
+      done();
+    };
+  });
+}
+async function info3d(f){
+  const ext = f.name.split(".").pop().toLowerCase(), buf = await f.arrayBuffer(), dv = new DataView(buf), dec = new TextDecoder();
+  const hd = "3D model summary (extracted from file " + f.name + ", " + (f.size / 1e6).toFixed(1) + " MB; not an image): ";
+  const bb = (mn, mx) => " bounding box " + [0, 1, 2].map(i => mn[i].toFixed(2) + ".." + mx[i].toFixed(2)).join(" x ");
+  if(ext === "obj"){
+    let v = 0, fc = 0, vt = 0, vn = 0; const o = [], mt = [], mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
+    for(const l of dec.decode(buf).split("\n")){
+      if(l[0] === "v" && l[1] === " "){ v++; const p = l.trim().split(/\s+/); for(let i = 0; i < 3; i++){ const x = +p[i + 1]; if(x < mn[i]) mn[i] = x; if(x > mx[i]) mx[i] = x; } }
+      else if(l.startsWith("vt ")) vt++; else if(l.startsWith("vn ")) vn++;
+      else if(l[0] === "f" && l[1] === " ") fc++;
+      else if(/^[og] /.test(l)) { if(o.length < 25) o.push(l.slice(2).trim()); }
+      else if(l.startsWith("usemtl ")){ const m = l.slice(7).trim(); if(mt.length < 15 && !mt.includes(m)) mt.push(m); }
+    }
+    return hd + "OBJ, " + v + " vertices, " + fc + " faces, " + vt + " UV, " + vn + " normals; objects/groups: " + (o.join(", ") || "-") + "; materials: " + (mt.join(", ") || "-") + ";" + (v ? bb(mn, mx) : "");
+  }
+  if(ext === "stl"){
+    const n = buf.byteLength >= 84 ? dv.getUint32(80, true) : 0;
+    if(buf.byteLength === 84 + 50 * n){
+      const mn = [1e9, 1e9, 1e9], mx = [-1e9, -1e9, -1e9];
+      for(let i = 0; i < n; i++) for(let j = 0; j < 9; j++){ const x = dv.getFloat32(84 + i * 50 + 12 + j * 4, true), a = j % 3; if(x < mn[a]) mn[a] = x; if(x > mx[a]) mx[a] = x; }
+      return hd + "binary STL, " + n + " triangles;" + (n ? bb(mn, mx) : "");
+    }
+    return hd + "ASCII STL, " + (dec.decode(buf).match(/facet normal/g) || []).length + " triangles.";
+  }
+  if(ext === "ply"){
+    const s = dec.decode(new Uint8Array(buf, 0, Math.min(4000, buf.byteLength))), e = s.indexOf("end_header");
+    return hd + "PLY header: " + s.slice(0, e > 0 ? e : 800).replace(/\r?\n/g, "; ");
+  }
+  let j = null;
+  try {
+    if(ext === "glb" && dv.getUint32(0, true) === 0x46546C67) j = JSON.parse(dec.decode(new Uint8Array(buf, 20, dv.getUint32(12, true))));
+    else if(ext === "gltf") j = JSON.parse(dec.decode(buf));
+  } catch (e) {}
+  if(!j) return null;
+  const nm = a => (a || []).slice(0, 12).map(x => x.name || "?").join(", ") || "-", ct = a => (a || []).length;
+  return hd + ext.toUpperCase() + ", meshes " + ct(j.meshes) + " (" + nm(j.meshes) + "), materials " + ct(j.materials) + " (" + nm(j.materials) + "), nodes " + ct(j.nodes) + ", textures " + ct(j.textures) + ", images " + ct(j.images) + ", animations " + ct(j.animations) + " (" + nm(j.animations) + "), skins " + ct(j.skins) + ", generator: " + ((j.asset && j.asset.generator) || "-") + ".";
+}
+async function stt(f){
+  try{
+    const r = await fetch("/api/stt?did=" + encodeURIComponent(did), {method: "POST", headers: {"Content-Type": f.type || "application/octet-stream", "X-Name": encodeURIComponent(f.name)}, body: f});
+    const d = await r.json().catch(() => ({}));
+    if(r.ok){ srv = {left: d.left, resetAt: d.resetAt}; refresh(); return d.text; }
+    if(d.limit){ srv = {left: 0, resetAt: d.resetAt}; refresh(); return null; }
+  }catch(e){}
+  note(t(18)); return null;
+}
 function renderAtt(){
   const a = $("att"); a.textContent = "";
   const add = (d, arr, i) => {
-    const x = document.createElement("button"); x.type = "button"; x.textContent = "✕";
+    const x = document.createElement("button"); x.type = "button"; x.innerHTML = ic("x", 10);
     x.onclick = () => { arr.splice(i, 1); renderAtt(); };
     d.append(x); a.append(d);
   };
   pics.forEach((u, i) => { const d = document.createElement("div"); d.className = "ch p"; const im = document.createElement("img"); im.src = u; d.append(im); add(d, pics, i); });
-  docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode("📎 " + f.name)); add(d, docs, i); });
+  docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(f.name)); add(d, docs, i); });
 }
 $("plus").onclick = () => { $("pm").style.display = $("pm").style.display === "block" ? "none" : "block"; };
 $("pp").onclick = () => { $("pm").style.display = "none"; $("fi").click(); };
@@ -309,18 +415,41 @@ $("pf").onclick = () => { $("pm").style.display = "none"; $("ff").click(); };
 document.addEventListener("click", e => { if(!e.target.closest("#pm,#plus")) $("pm").style.display = "none"; });
 $("fi").onchange = async e => {
   for(const f of e.target.files){
-    if(pics.length >= 5){ note("📷 ≤ 5"); break; }
-    const u = await shrink(f); if(u) pics.push(u);
+    if(pics.length >= 5){ note(t(12) + " ≤ 5"); break; }
+    if(f.type.startsWith("video/")){
+      if(f.size > 5e6){ note(t(16) + " ≤ 5 MB"); continue; }
+      note(t(10));
+      for(const u of await frames(f, Math.min(4, 5 - pics.length))) pics.push(u);
+    } else {
+      const u = await shrink(f); if(u) pics.push(u);
+    }
+    renderAtt();
   }
-  e.target.value = ""; renderAtt();
+  e.target.value = ""; renderAtt(); refresh();
 };
+const AUD = /\.(mp3|wav|m4a|ogg|flac|webm|mp4|mpeg|mpga)$/i, D3 = /\.(obj|stl|glb|gltf|ply)$/i;
 $("ff").onchange = async e => {
+  const hint = t(13) + ": txt · md · csv · json · code · mp3 · wav · m4a · ogg · flac · obj · stl · glb · gltf · ply";
   for(const f of e.target.files){
-    if(docs.length >= 3){ note("📎 ≤ 3"); break; }
-    if(f.size > 2e6){ note("📎 ≤ 2 MB"); continue; }
-    if(/\.(pdf|docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk)$/i.test(f.name)){ note("📎 txt · md · csv · json · code"); continue; }
+    if(docs.length >= 3){ note(t(13) + " ≤ 3"); break; }
+    if(D3.test(f.name)){
+      if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
+      let s = null; try { s = await info3d(f); } catch (x) {}
+      if(!s){ note(hint); continue; }
+      docs.push({name: f.name, text: s.slice(0, 4000)}); renderAtt(); continue;
+    }
+    if(AUD.test(f.name) || f.type.startsWith("audio/")){
+      if(!AUD.test(f.name)){ note(hint); continue; }
+      if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
+      note(t(10));
+      const tx = await stt(f);
+      if(tx){ docs.push({name: f.name, text: "(audio transcript)\n" + tx.slice(0, 5000)}); renderAtt(); refresh(); }
+      continue;
+    }
+    if(f.size > 2e6){ note(t(13) + " ≤ 2 MB"); continue; }
+    if(/\.(pdf|docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk)$/i.test(f.name)){ note(hint); continue; }
     let txt = ""; try { txt = await f.text(); } catch (x) {}
-    if(!txt || txt.indexOf("\u0000") >= 0){ note("📎 txt · md · csv · json · code"); continue; }
+    if(!txt || txt.indexOf("\u0000") >= 0){ note(hint); continue; }
     docs.push({name: f.name, text: txt.slice(0, 4000)});
   }
   e.target.value = ""; renderAtt();
@@ -336,9 +465,9 @@ $("mic").onclick = () => {
     let s = ""; for(let i = 0; i < e.results.length; i++) s += e.results[i][0].transcript;
     $("in").value = base + s; $("in").dispatchEvent(new Event("input"));
   };
-  rec.onend = () => { rec = null; $("mic").classList.remove("on"); $("mic").textContent = "🎤"; };
+  rec.onend = () => { rec = null; $("mic").classList.remove("on"); $("mic").innerHTML = ic("mic"); };
   rec.onerror = () => {};
-  try { rec.start(); $("mic").classList.add("on"); $("mic").textContent = "⏹"; } catch (x) { rec = null; }
+  try { rec.start(); $("mic").classList.add("on"); $("mic").innerHTML = ic("stop"); } catch (x) { rec = null; }
 };
 
 function link(href, text){
@@ -364,8 +493,8 @@ function fill(el, text){
     if(i % 2){
       const code = part.replace(/^[^\n]*\n/, "").replace(/\n$/, "");
       const box = document.createElement("div"); box.className = "cb";
-      const btn = document.createElement("button"); btn.textContent = "⧉"; btn.type = "button";
-      btn.onclick = () => { try { navigator.clipboard.writeText(code); btn.textContent = "✓"; setTimeout(() => btn.textContent = "⧉", 1500); } catch (e) {} };
+      const btn = document.createElement("button"); btn.type = "button"; btn.innerHTML = ic("copy", 16);
+      btn.onclick = () => { try { navigator.clipboard.writeText(code); btn.innerHTML = ic("check", 16); setTimeout(() => btn.innerHTML = ic("copy", 16), 1500); } catch (e) {} };
       const pre = document.createElement("pre"); pre.textContent = code;
       box.append(btn, pre); el.append(box);
     } else if(part) inl(el, part);
@@ -386,7 +515,7 @@ function renderList(){
     const row = document.createElement("div"); row.className = "it" + (c.id === cid ? " on" : "");
     const b = document.createElement("button"); b.className = "t"; b.type = "button"; b.textContent = c.title;
     b.onclick = () => { cid = c.id; renderAll(); $("side").classList.remove("open"); };
-    const x = document.createElement("button"); x.className = "x"; x.type = "button"; x.textContent = "✕";
+    const x = document.createElement("button"); x.className = "x"; x.type = "button"; x.innerHTML = ic("x", 14);
     x.onclick = () => { chats = chats.filter(k => k.id !== c.id); if(cid === c.id) cid = chats[0] ? chats[0].id : null; save(); renderAll(); };
     row.append(b, x); l.append(row);
   });
@@ -426,10 +555,10 @@ async function send(){
   if(!text || busy || left() <= 0) return;
   if(rec) rec.stop();
   const imgs = pics.slice(), fl = docs.slice();
-  const shown = text + (imgs.length ? "\n📷 × " + imgs.length : "") + fl.map(f => "\n📎 " + f.name).join("");
+  const shown = text + (imgs.length ? "\n" + t(12) + " × " + imgs.length : "") + fl.map(f => "\n" + t(13) + ": " + f.name).join("");
   const apiText = text + fl.map(f => "\n\n[" + f.name + "]\n" + f.text).join("");
   pics = []; docs = []; renderAtt();
-  const lt = light(), tag = NAMES[cur] + (lt ? " ⚡" : "");
+  const lt = light(), tag = NAMES[cur] + (lt ? " · lite" : "");
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
