@@ -48,11 +48,22 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .empty{margin:auto;text-align:center;color:var(--mu)}
 .empty svg{width:76px;height:76px;margin-bottom:10px}
 .empty b{display:block;font-size:30px;color:var(--tx);margin-bottom:4px}
-.foot{width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.foot{position:relative;width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px))}
 #limit{display:none;margin-bottom:8px;padding:9px 14px;border-radius:12px;background:var(--sf);font-size:14px}
 #limit.show{display:block}
-.bar{display:flex;align-items:flex-end;gap:8px;background:var(--sf);border-radius:26px;padding:8px 8px 8px 18px}
-textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(--tx);padding:8px 0;font:inherit;outline:none}
+#att{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+#att:empty{display:none}
+.ch{position:relative;background:var(--sf);border-radius:12px;font-size:13px;padding:6px 28px 6px 10px;max-width:190px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ch.p{padding:0;width:56px;height:56px}
+.ch img{width:56px;height:56px;object-fit:cover;display:block;border-radius:12px}
+.ch button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;line-height:18px;padding:0}
+.bar{display:flex;align-items:flex-end;gap:4px;background:var(--sf);border-radius:26px;padding:8px}
+#plus,#mic{border:0;background:none;font-size:20px;width:36px;height:36px;flex-shrink:0;color:var(--mu)}
+#mic.on{color:#ef4444}
+#pm{display:none;position:absolute;left:12px;bottom:calc(66px + env(safe-area-inset-bottom,0px));background:var(--bg);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:5}
+#pm button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 16px;border-radius:10px;white-space:nowrap}
+#pm button:hover{background:var(--sf)}
+textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(--tx);padding:8px 4px;font:inherit;outline:none}
 #go{border:0;background:var(--tx);color:var(--bg);width:36px;height:36px;border-radius:50%;font-size:18px;flex-shrink:0}
 #go:disabled{opacity:.3}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;padding:16px}
@@ -96,10 +107,19 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
   <div id="msgs"></div>
   <div class="foot">
     <div id="limit"></div>
+    <div id="att"></div>
+    <div id="pm">
+      <button id="pp" type="button"></button>
+      <button id="pf" type="button"></button>
+    </div>
     <div class="bar">
+      <button id="plus" type="button">＋</button>
       <textarea id="in" rows="1"></textarea>
+      <button id="mic" type="button">🎤</button>
       <button id="go" type="button">↑</button>
     </div>
+    <input type="file" id="fi" accept="image/*" multiple hidden>
+    <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,text/*">
   </div>
 </div>
 <div class="ov" id="ov"><div class="card">
@@ -118,7 +138,8 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 const KEY = "lumia_chats_v1", MK = "lumia_model", PK = "lumia_mem", LK = "lumia_lang";
 const NAMES = {deep: "Deep 1", heroes: "Heroes 1"};
 const LANGS = [["ru","Русский"],["en","English"],["uk","Українська"],["es","Español"],["de","Deutsch"],["fr","Français"],["it","Italiano"],["pt","Português"],["pl","Polski"],["tr","Türkçe"],["zh","中文"],["ja","日本語"],["ko","한국어"],["hi","हिन्दी"],["th","ไทย"]];
-// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка
+const RL = {ru:"ru-RU",en:"en-US",uk:"uk-UA",es:"es-ES",de:"de-DE",fr:"fr-FR",it:"it-IT",pt:"pt-BR",pl:"pl-PL",tr:"tr-TR",zh:"zh-CN",ja:"ja-JP",ko:"ko-KR",hi:"hi-IN",th:"th-TH"};
+// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка, 12 фото, 13 файл, 14 нет микрофона, 15 фото недоступно
 const T = {
 ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
 en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter mode, cheaper requests (Deep 3%, Heroes 2%)","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
@@ -136,6 +157,24 @@ ko:["새 채팅","설정","여기에 입력…","무엇을 도와드릴까요?",
 hi:["नई चैट","सेटिंग्स","यहाँ लिखें…","मैं कैसे मदद कर सकता हूँ?","30% से कम: हल्का मोड, अनुरोध सस्ते (Deep 3%, Heroes 2%)","सीमा पूरी हो गई। {t} पर रीसेट होगी","आज बचा","{t} पर रीसेट","पिछली चैट याद रखें","हो गया","सोच रहा हूँ…","कुछ गलत हो गया। फिर से कोशिश करें।"],
 th:["แชทใหม่","การตั้งค่า","พิมพ์ที่นี่…","ให้ช่วยอะไรดี?","เหลือไม่ถึง 30%: โหมดเบา คำขอถูกลง (Deep 3%, Heroes 2%)","ถึงขีดจำกัดแล้ว รีเซ็ตเวลา {t}","เหลือวันนี้","รีเซ็ตเวลา {t}","จดจำแชทก่อนหน้า","เสร็จสิ้น","กำลังคิด…","เกิดข้อผิดพลาด ลองอีกครั้ง"]
 };
+const X = {
+ru:["Фото","Файл","Голосовой ввод не поддерживается в этом браузере. Используй микрофон на клавиатуре.","Анализ фото временно недоступен, попробуйте позже."],
+en:["Photo","File","Voice input isn’t supported in this browser. Use your keyboard’s microphone.","Photo analysis is temporarily unavailable, please try again later."],
+uk:["Фото","Файл","Голосовий ввід не підтримується в цьому браузері. Скористайся мікрофоном на клавіатурі.","Аналіз фото тимчасово недоступний, спробуйте пізніше."],
+es:["Foto","Archivo","Este navegador no admite entrada de voz. Usa el micrófono del teclado.","El análisis de fotos no está disponible temporalmente, inténtalo más tarde."],
+de:["Foto","Datei","Spracheingabe wird in diesem Browser nicht unterstützt. Nutze das Mikrofon der Tastatur.","Die Fotoanalyse ist vorübergehend nicht verfügbar, bitte versuche es später erneut."],
+fr:["Photo","Fichier","La saisie vocale n’est pas prise en charge par ce navigateur. Utilise le micro du clavier.","L’analyse de photos est temporairement indisponible, réessaie plus tard."],
+it:["Foto","File","L’input vocale non è supportato da questo browser. Usa il microfono della tastiera.","L’analisi delle foto è temporaneamente non disponibile, riprova più tardi."],
+pt:["Foto","Arquivo","Este navegador não suporta entrada de voz. Use o microfone do teclado.","A análise de fotos está temporariamente indisponível, tente novamente mais tarde."],
+pl:["Zdjęcie","Plik","Ta przeglądarka nie obsługuje wprowadzania głosowego. Użyj mikrofonu na klawiaturze.","Analiza zdjęć jest tymczasowo niedostępna, spróbuj ponownie później."],
+tr:["Fotoğraf","Dosya","Bu tarayıcı sesli girişi desteklemiyor. Klavyenin mikrofonunu kullan.","Fotoğraf analizi geçici olarak kullanılamıyor, lütfen daha sonra tekrar deneyin."],
+zh:["照片","文件","此浏览器不支持语音输入，请使用键盘上的麦克风。","照片分析暂时不可用，请稍后再试。"],
+ja:["写真","ファイル","このブラウザは音声入力に対応していません。キーボードのマイクをお使いください。","写真の分析は一時的に利用できません。後でもう一度お試しください。"],
+ko:["사진","파일","이 브라우저는 음성 입력을 지원하지 않습니다. 키보드의 마이크를 사용하세요.","사진 분석을 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요."],
+hi:["फ़ोटो","फ़ाइल","यह ब्राउज़र वॉइस इनपुट का समर्थन नहीं करता। कीबोर्ड का माइक इस्तेमाल करें।","फ़ोटो विश्लेषण अस्थायी रूप से उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।"],
+th:["รูปภาพ","ไฟล์","เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง ใช้ไมโครโฟนบนคีย์บอร์ดแทน","การวิเคราะห์รูปภาพไม่พร้อมใช้งานชั่วคราว โปรดลองอีกครั้งในภายหลัง"]
+};
+for (const c in X) T[c].push(...X[c]);
 const H = {
 ru:["Heroes 1: для быстрых задач","Deep 1: для более сложных задач"],
 en:["Heroes 1: for quick tasks","Deep 1: for more complex tasks"],
@@ -157,6 +196,7 @@ const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1=
 const $ = id => document.getElementById(id);
 let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false;
 let srv = {left: 100, resetAt: 0}, did = "", lang = "";
+let pics = [], docs = [], rec = null;
 try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; lang = localStorage.getItem(LK) || ""; } catch (e) {}
 if (!T[lang]) lang = "";
 if (!did){
@@ -173,6 +213,7 @@ const left = () => srv.left;
 const light = () => srv.left > 0 && srv.left < 30;
 const hhmm = x => { const d = new Date(x), l = lang || "ru"; return d.toLocaleTimeString(l, {hour: "2-digit", minute: "2-digit"}) + ", " + d.toLocaleDateString(l, {day: "numeric", month: "long"}); };
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
+function note(s){ $("limit").textContent = s; $("limit").classList.add("show"); setTimeout(refresh, 3500); }
 
 function refresh(){
   const l = left(), col = color(l);
@@ -194,6 +235,8 @@ function ui(){
   document.documentElement.lang = lang || "ru";
   document.querySelectorAll("[data-i]").forEach(e => e.textContent = t(+e.dataset.i));
   $("in").placeholder = t(2);
+  $("pp").textContent = "📷 " + t(12);
+  $("pf").textContent = "📎 " + t(13);
   refresh(); renderMsgs();
 }
 function setLang(c){
@@ -230,6 +273,73 @@ LANGS.forEach(([c, n]) => {
 });
 $("lsel").onchange = e => setLang(e.target.value);
 $("blogo").innerHTML = LOGO;
+
+function shrink(file){
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        const k = Math.min(1, 896 / Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", .8));
+      };
+      im.onerror = () => res(null);
+      im.src = r.result;
+    };
+    r.onerror = () => res(null);
+    r.readAsDataURL(file);
+  });
+}
+function renderAtt(){
+  const a = $("att"); a.textContent = "";
+  const add = (d, arr, i) => {
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "✕";
+    x.onclick = () => { arr.splice(i, 1); renderAtt(); };
+    d.append(x); a.append(d);
+  };
+  pics.forEach((u, i) => { const d = document.createElement("div"); d.className = "ch p"; const im = document.createElement("img"); im.src = u; d.append(im); add(d, pics, i); });
+  docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode("📎 " + f.name)); add(d, docs, i); });
+}
+$("plus").onclick = () => { $("pm").style.display = $("pm").style.display === "block" ? "none" : "block"; };
+$("pp").onclick = () => { $("pm").style.display = "none"; $("fi").click(); };
+$("pf").onclick = () => { $("pm").style.display = "none"; $("ff").click(); };
+document.addEventListener("click", e => { if(!e.target.closest("#pm,#plus")) $("pm").style.display = "none"; });
+$("fi").onchange = async e => {
+  for(const f of e.target.files){
+    if(pics.length >= 5){ note("📷 ≤ 5"); break; }
+    const u = await shrink(f); if(u) pics.push(u);
+  }
+  e.target.value = ""; renderAtt();
+};
+$("ff").onchange = async e => {
+  for(const f of e.target.files){
+    if(docs.length >= 3){ note("📎 ≤ 3"); break; }
+    if(f.size > 2e6){ note("📎 ≤ 2 MB"); continue; }
+    if(/\.(pdf|docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk)$/i.test(f.name)){ note("📎 txt · md · csv · json · code"); continue; }
+    let txt = ""; try { txt = await f.text(); } catch (x) {}
+    if(!txt || txt.indexOf("\u0000") >= 0){ note("📎 txt · md · csv · json · code"); continue; }
+    docs.push({name: f.name, text: txt.slice(0, 4000)});
+  }
+  e.target.value = ""; renderAtt();
+};
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+$("mic").onclick = () => {
+  if(!SR){ note(t(14)); return; }
+  if(rec){ rec.stop(); return; }
+  rec = new SR(); rec.lang = RL[lang] || "ru-RU"; rec.interimResults = true; rec.continuous = true;
+  const base = $("in").value ? $("in").value + " " : "";
+  rec.onresult = e => {
+    let s = ""; for(let i = 0; i < e.results.length; i++) s += e.results[i][0].transcript;
+    $("in").value = base + s; $("in").dispatchEvent(new Event("input"));
+  };
+  rec.onend = () => { rec = null; $("mic").classList.remove("on"); $("mic").textContent = "🎤"; };
+  rec.onerror = () => {};
+  try { rec.start(); $("mic").classList.add("on"); $("mic").textContent = "⏹"; } catch (x) { rec = null; }
+};
 
 function link(href, text){
   const a = document.createElement("a");
@@ -302,9 +412,11 @@ function memory(){
     return "- " + c.title + (q ? ": " + q.content.slice(0, 80) : "");
   }).join("\n");
 }
-async function ask(model, msgs){
+async function ask(model, msgs, apiText, imgs){
+  const m = msgs.map(({role, content}) => ({role, content}));
+  m[m.length - 1].content = apiText;
   const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({did, lang, model, memory: memory(), messages: msgs.map(({role, content}) => ({role, content}))})});
+    body: JSON.stringify({did, lang, model, memory: memory(), images: imgs, messages: m})});
   const d = await r.json().catch(() => ({}));
   if(!r.ok) throw {code: r.status, data: d};
   return d;
@@ -312,21 +424,26 @@ async function ask(model, msgs){
 async function send(){
   const text = $("in").value.trim();
   if(!text || busy || left() <= 0) return;
+  if(rec) rec.stop();
+  const imgs = pics.slice(), fl = docs.slice();
+  const shown = text + (imgs.length ? "\n📷 × " + imgs.length : "") + fl.map(f => "\n📎 " + f.name).join("");
+  const apiText = text + fl.map(f => "\n\n[" + f.name + "]\n" + f.text).join("");
+  pics = []; docs = []; renderAtt();
   const lt = light(), tag = NAMES[cur] + (lt ? " ⚡" : "");
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
-  c.msgs.push({role: "user", content: text}); save(); renderAll();
+  c.msgs.push({role: "user", content: shown}); save(); renderAll();
   const body = bubble("assistant", t(10), tag);
   try{
-    const d = await ask(cur, c.msgs);
+    const d = await ask(cur, c.msgs, apiText, imgs);
     c.msgs.push({role: "assistant", content: d.text, model: tag}); save();
     srv = {left: d.left, resetAt: d.resetAt};
     fill(body, d.text);
   }catch(e){
     c.msgs.pop(); save();
     if(e && e.data && e.data.limit){ srv = {left: 0, resetAt: e.data.resetAt}; renderAll(); $("in").value = text; }
-    else fill(body, t(11));
+    else fill(body, e && e.data && e.data.photo ? t(15) : t(11));
   }
   busy = false; refresh(); $("in").focus();
 }
