@@ -1,11 +1,23 @@
 const BASE = "Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Отвечай на языке пользователя, пиши грамотно и перед ответом проверяй, что каждое слово существует и подходит по смыслу. Код давай полным и рабочим в блоках ```. Сегодня: ";
-const MODELS = {
-  deep: { model: "openai/gpt-oss-120b", reasoning_effort: "medium", max_tokens: 3000,
-    extra: "Ты модель Deep 1: думай глубоко и по шагам, проверяй себя перед ответом." },
-  light: { model: "qwen/qwen3.8-27b", max_tokens: 3000,
-    extra: "Ты модель Deep 1 в облегчённом режиме: думай по шагам, но отвечай собранно." },
-  heroes: { model: "openai/gpt-oss-20b", reasoning_effort: "low", max_tokens: 3000,
-    extra: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры." },
+const EXTRA = {
+  deep: "Ты модель Deep 1: думай глубоко и по шагам, проверяй себя перед ответом.",
+  light: "Ты модель Deep 1 в облегчённом режиме: думай по шагам, но отвечай собранно.",
+  heroes: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры.",
+};
+const P = {
+  g120: { p: "groq", m: "openai/gpt-oss-120b", r: "medium" },
+  gq: { p: "groq", m: "qwen/qwen3.8-27b" },
+  g20: { p: "groq", m: "openai/gpt-oss-20b", r: "low" },
+  c120: { p: "cf", m: "@cf/openai/gpt-oss-120b" },
+  c20: { p: "cf", m: "@cf/openai/gpt-oss-20b" },
+  cq: { p: "cf", m: "@cf/qwen/qwen3.8-27b" },
+  glm: { p: "cf", m: "@cf/zai-org/glm-4.7-flash" },
+};
+const CHAINS = {
+  deep: ["g120", "gq", "c120", "cq", "glm"],
+  deepLite: ["gq", "c120", "cq", "glm"],
+  heroes: ["g20", "c20", "gq", "glm"],
+  heroesLite: ["gq", "g20", "c20", "glm"],
 };
 const LANGS = { ru: "Russian", en: "English", uk: "Ukrainian", es: "Spanish", de: "German", fr: "French", it: "Italian", pt: "Portuguese", pl: "Polish", tr: "Turkish", zh: "Simplified Chinese", ja: "Japanese", ko: "Korean", hi: "Hindi", th: "Thai" };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json" } });
@@ -23,6 +35,34 @@ async function saveUsage(db, did, used, start) {
   await db.prepare("INSERT INTO usage (id, used, start) VALUES (?1, ?2, ?3) ON CONFLICT(id) DO UPDATE SET used = ?2, start = ?3").bind(did, used, start).run();
 }
 
+async function run(id, system, messages, env) {
+  const c = P[id];
+  try {
+    let text = "";
+    if (c.p === "groq") {
+      if (!env.GROQ_API_KEY) return null;
+      const b = { model: c.m, temperature: 0.5, max_tokens: 3000, messages: [{ role: "system", content: system }, ...messages] };
+      if (c.r) b.reasoning_effort = c.r;
+      const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + env.GROQ_API_KEY },
+        body: JSON.stringify(b),
+      });
+      if (!r.ok) return null;
+      const d = await r.json();
+      text = (d.choices && d.choices[0] && d.choices[0].message.content) || "";
+    } else {
+      if (!env.AI) return null;
+      const d = await env.AI.run(c.m, { max_tokens: 3000, temperature: 0.5, messages: [{ role: "system", content: system }, ...messages] });
+      text = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || (d && d.response) || "";
+    }
+    text = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    return text || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -37,40 +77,29 @@ export default {
     if (url.pathname === "/api/usage") return json(view(used, start));
 
     if (100 - used <= 0) return json({ limit: true, error: "Лимит закончился", left: 0, resetAt: resetAt(start) }, 429);
-    const key = env.GROQ_API_KEY;
-    if (!key) return json({ error: "Нет ключа GROQ_API_KEY" }, 500);
     const isDeep = body.model === "deep";
-    const light = isDeep && 100 - used < 30;
-    const cost = isDeep ? (light ? 3 : 6) : 4;
-    const cfg = MODELS[isDeep ? (light ? "light" : "deep") : "heroes"];
+    const light = 100 - used < 30;
+    const cost = isDeep ? (light ? 3 : 6) : (light ? 2 : 4);
+    const chain = CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
+    const extra = isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes;
     const hist = (Array.isArray(body.messages) ? body.messages.slice(-6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 3000 : 1200) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Пустой вопрос" }, 400);
     const L = LANGS[body.lang] || "Russian";
-    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + cfg.extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
+    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
     if (typeof body.memory === "string" && body.memory) {
       system += "\nО чём пользователь говорил с тобой в прошлых чатах (только для контекста, упоминай при необходимости):\n" + body.memory.slice(0, 600);
     }
-    const payload = { model: cfg.model, temperature: 0.5, max_tokens: cfg.max_tokens, messages: [{ role: "system", content: system }, ...messages] };
-    if (cfg.reasoning_effort) payload.reasoning_effort = cfg.reasoning_effort;
-    try {
-      const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-        body: JSON.stringify(payload),
-      });
-      const data = await r.json();
-      if (!r.ok) return json({ error: (data.error && data.error.message) || "Ошибка Groq" }, r.status === 429 ? 429 : 502);
-      let text = (data.choices && data.choices[0] && data.choices[0].message.content) || "";
-      text = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-      if (!text) text = "Модель не успела закончить ответ. Задай вопрос короче или выбери Heroes 1.";
-      used = Math.min(100, used + cost);
-      if (!start) start = Date.now();
-      await saveUsage(env.DB, did, used, start);
-      return json({ text, light, ...view(used, start) });
-    } catch (e) {
-      return json({ error: "Не удалось связаться с Groq" }, 502);
+    let text = null;
+    for (const id of chain) {
+      text = await run(id, system, messages, env);
+      if (text) break;
     }
+    if (!text) return json({ error: "Все модели сейчас заняты" }, 503);
+    used = Math.min(100, used + cost);
+    if (!start) start = Date.now();
+    await saveUsage(env.DB, did, used, start);
+    return json({ text, light: isDeep && light, ...view(used, start) });
   },
 };
