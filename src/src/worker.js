@@ -79,13 +79,19 @@ export default {
     if (100 - used <= 0) return json({ limit: true, error: "Лимит закончился", left: 0, resetAt: resetAt(start) }, 429);
     const isDeep = body.model === "deep";
     const light = 100 - used < 30;
-    const cost = isDeep ? (light ? 3 : 6) : (light ? 2 : 4);
-    const chain = CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
+    const imgs = (Array.isArray(body.images) ? body.images : [])
+      .filter((u) => typeof u === "string" && u.startsWith("data:image/") && u.length < 900000).slice(0, 5);
+    const cost = (isDeep || imgs.length) ? (light ? 3 : 6) : (light ? 2 : 4);
+    const chain = imgs.length ? ["cq", "gq"] : CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
     const extra = isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes;
     const hist = (Array.isArray(body.messages) ? body.messages.slice(-6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
-    const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 3000 : 1200) }));
+    const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 16000 : 1200) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Пустой вопрос" }, 400);
+    if (imgs.length) {
+      const last = messages[messages.length - 1];
+      last.content = [{ type: "text", text: last.content }, ...imgs.map((u) => ({ type: "image_url", image_url: { url: u } }))];
+    }
     const L = LANGS[body.lang] || "Russian";
     let system = BASE + new Date().toISOString().slice(0, 10) + ". " + extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
     if (typeof body.memory === "string" && body.memory) {
@@ -96,7 +102,7 @@ export default {
       text = await run(id, system, messages, env);
       if (text) break;
     }
-    if (!text) return json({ error: "Все модели сейчас заняты" }, 503);
+    if (!text) return json(imgs.length ? { error: "photo", photo: true } : { error: "Все модели сейчас заняты" }, 503);
     used = Math.min(100, used + cost);
     if (!start) start = Date.now();
     await saveUsage(env.DB, did, used, start);
