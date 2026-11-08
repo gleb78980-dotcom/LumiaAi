@@ -4,6 +4,7 @@ const EXTRA = {
   light: "Ты модель Deep 1 в облегчённом режиме: думай по шагам, но отвечай собранно.",
   heroes: "Ты модель Heroes 1: отвечай быстро и по делу, но справляйся и со сложными задачами, включая код и игры.",
 };
+const PHOTO = " ВАЖНО про фото: если не уверен, что изображено, честно скажи об этом и опиши только то, что действительно видно. Не выдумывай названия персонажей, игр, мест и людей и не определяй личность реальных людей по лицу.";
 const P = {
   g120: { p: "groq", m: "openai/gpt-oss-120b", r: "medium" },
   gq: { p: "groq", m: "qwen/qwen3.8-27b" },
@@ -12,12 +13,16 @@ const P = {
   c20: { p: "cf", m: "@cf/openai/gpt-oss-20b" },
   cq: { p: "cf", m: "@cf/qwen/qwen3.8-27b" },
   glm: { p: "cf", m: "@cf/zai-org/glm-4.7-flash" },
+  cl4: { p: "cf", m: "@cf/meta/llama-4-scout-17b-16e-instruct" },
+  cm: { p: "cf", m: "@cf/mistralai/mistral-small-3.1-24b-instruct" },
+  cg3: { p: "cf", m: "@cf/google/gemma-3-12b-it" },
 };
 const CHAINS = {
   deep: ["g120", "gq", "c120", "cq", "glm"],
   deepLite: ["gq", "c120", "cq", "glm"],
   heroes: ["g20", "c20", "gq", "glm"],
   heroesLite: ["gq", "g20", "c20", "glm"],
+  photo: ["cl4", "cm", "cg3", "cq", "gq"],
 };
 const LANGS = { ru: "Russian", en: "English", uk: "Ukrainian", es: "Spanish", de: "German", fr: "French", it: "Italian", pt: "Portuguese", pl: "Polish", tr: "Turkish", zh: "Simplified Chinese", ja: "Japanese", ko: "Korean", hi: "Hindi", th: "Thai" };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json" } });
@@ -63,11 +68,42 @@ async function run(id, system, messages, env) {
   }
 }
 
+async function stt(request, url, env) {
+  const did = url.searchParams.get("did") || "";
+  if (!/^[A-Za-z0-9-]{16,64}$/.test(did)) return json({ error: "Нет кода устройства" }, 400);
+  if (!env.DB || !env.GROQ_API_KEY) return json({ stt: true, error: "stt" }, 503);
+  const u = await getUsage(env.DB, did);
+  if (100 - u.used <= 0) return json({ limit: true, left: 0, resetAt: resetAt(u.start) }, 429);
+  const buf = await request.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > 10.5e6) return json({ stt: true, error: "size" }, 413);
+  let name = "audio.mp3";
+  try { name = decodeURIComponent(request.headers.get("X-Name") || name); } catch (e) {}
+  name = name.replace(/[^\w.\-]+/g, "_").slice(-60);
+  if (!/\.(mp3|wav|m4a|ogg|flac|webm|mp4|mpeg|mpga)$/i.test(name)) name += ".mp3";
+  const fd = new FormData();
+  fd.append("file", new Blob([buf], { type: request.headers.get("Content-Type") || "audio/mpeg" }), name);
+  fd.append("model", "whisper-large-v3-turbo");
+  fd.append("response_format", "json");
+  try {
+    const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", headers: { Authorization: "Bearer " + env.GROQ_API_KEY }, body: fd });
+    if (!r.ok) return json({ stt: true, error: "stt" }, 503);
+    const d = await r.json();
+    const text = String((d && d.text) || "").trim();
+    if (text.length < 3) return json({ stt: true, error: "empty" }, 503);
+    const used = Math.min(100, u.used + 3), start = u.start || Date.now();
+    await saveUsage(env.DB, did, used, start);
+    return json({ text, ...view(used, start) });
+  } catch (e) {
+    return json({ stt: true, error: "stt" }, 503);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/chat" && url.pathname !== "/api/usage") return json({ error: "Не найдено" }, 404);
+    if (url.pathname !== "/api/chat" && url.pathname !== "/api/usage" && url.pathname !== "/api/stt") return json({ error: "Не найдено" }, 404);
     if (request.method !== "POST") return json({ error: "Нужен POST-запрос" }, 405);
+    if (url.pathname === "/api/stt") return stt(request, url, env);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "Неверный запрос" }, 400); }
     const did = typeof body.did === "string" && /^[A-Za-z0-9-]{16,64}$/.test(body.did) ? body.did : null;
@@ -82,8 +118,8 @@ export default {
     const imgs = (Array.isArray(body.images) ? body.images : [])
       .filter((u) => typeof u === "string" && u.startsWith("data:image/") && u.length < 900000).slice(0, 5);
     const cost = (isDeep || imgs.length) ? (light ? 3 : 6) : (light ? 2 : 4);
-    const chain = imgs.length ? ["cq", "gq"] : CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
-    const extra = isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes;
+    const chain = imgs.length ? CHAINS.photo : CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
+    const extra = (isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes) + (imgs.length ? PHOTO : "");
     const hist = (Array.isArray(body.messages) ? body.messages.slice(-6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 16000 : 1200) }));
