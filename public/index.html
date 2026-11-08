@@ -29,6 +29,7 @@ header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-
 .sw{display:flex;background:var(--sf);border-radius:12px;padding:3px}
 .sw button{border:0;background:none;color:var(--mu);font-size:14px;font-weight:600;padding:6px 14px;border-radius:9px}
 .sw button.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+#mh{padding:0 14px 6px;font-size:13px;color:var(--mu)}
 #chip{margin-left:auto;border:0;background:var(--sf);border-radius:14px;padding:5px 12px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
 #chip i{width:10px;height:10px;border-radius:50%;background:#22c55e}
 #lite{display:none;margin:0 12px;padding:8px 12px;border-radius:12px;background:var(--sf);font-size:14px;color:var(--mu);align-items:center;gap:8px}
@@ -90,6 +91,7 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
     </div>
     <button id="chip" type="button"><i></i><span>100%</span></button>
   </header>
+  <div id="mh"></div>
   <div id="lite"><span data-i="4"></span><button id="lx" type="button">✕</button></div>
   <div id="msgs"></div>
   <div class="foot">
@@ -103,7 +105,7 @@ textarea{flex:1;resize:none;max-height:150px;border:0;background:none;color:var(
 <div class="ov" id="ov"><div class="card">
   <h2 data-i="1"></h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
-    <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% · Deep 1 — 6% (3%)</div></div>
+    <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% (2%) · Deep 1 — 6% (3%)</div></div>
   <div class="row tg"><span data-i="8"></span><input type="checkbox" id="mem"></div>
   <div class="row tg"><span>🌐</span><select id="lsel"></select></div>
   <button id="close" type="button" data-i="9"></button>
@@ -118,21 +120,38 @@ const NAMES = {deep: "Deep 1", heroes: "Heroes 1"};
 const LANGS = [["ru","Русский"],["en","English"],["uk","Українська"],["es","Español"],["de","Deutsch"],["fr","Français"],["it","Italiano"],["pt","Português"],["pl","Polski"],["tr","Türkçe"],["zh","中文"],["ja","日本語"],["ko","한국어"],["hi","हिन्दी"],["th","ไทย"]];
 // 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка
 const T = {
-ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённая модель, 3% за запрос","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
-en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter model, 3% per request","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
-uk:["Новий чат","Налаштування","Напиши, що потрібно…","Чим можу допомогти?","Менше 30%: полегшена модель, 3% за запит","Ліміт вичерпано. Оновиться о {t}","Залишилось сьогодні","Оновиться о {t}","Пам’ятати минулі чати","Готово","Думаю…","Не вдалося відповісти. Спробуй ще раз."],
-es:["Nuevo chat","Ajustes","Escribe aquí…","¿En qué puedo ayudarte?","Menos del 30%: modelo ligero, 3% por consulta","Límite alcanzado. Se restablece a las {t}","Restante hoy","Se restablece a las {t}","Recordar chats anteriores","Listo","Pensando…","Algo salió mal. Inténtalo de nuevo."],
-de:["Neuer Chat","Einstellungen","Schreib hier…","Wie kann ich helfen?","Unter 30 %: leichteres Modell, 3 % pro Anfrage","Limit erreicht. Zurücksetzung um {t}","Heute übrig","Zurücksetzung um {t}","Frühere Chats merken","Fertig","Denke nach…","Etwas ist schiefgelaufen. Versuch es erneut."],
-fr:["Nouveau chat","Paramètres","Écris ici…","Comment puis-je aider ?","Moins de 30 % : modèle allégé, 3 % par demande","Limite atteinte. Réinitialisation à {t}","Restant aujourd’hui","Réinitialisation à {t}","Se souvenir des chats passés","Terminé","Je réfléchis…","Une erreur est survenue. Réessaie."],
-it:["Nuova chat","Impostazioni","Scrivi qui…","Come posso aiutarti?","Meno del 30%: modello leggero, 3% a richiesta","Limite raggiunto. Si azzera alle {t}","Rimasto oggi","Si azzera alle {t}","Ricorda le chat passate","Fatto","Sto pensando…","Qualcosa è andato storto. Riprova."],
-pt:["Novo chat","Configurações","Escreva aqui…","Como posso ajudar?","Menos de 30%: modelo leve, 3% por pedido","Limite atingido. Reinicia às {t}","Restante hoje","Reinicia às {t}","Lembrar conversas anteriores","Concluído","Pensando…","Algo deu errado. Tente novamente."],
-pl:["Nowy czat","Ustawienia","Napisz tutaj…","W czym mogę pomóc?","Poniżej 30%: lżejszy model, 3% za zapytanie","Limit wyczerpany. Odnowi się o {t}","Pozostało dziś","Odnowi się o {t}","Pamiętaj poprzednie czaty","Gotowe","Myślę…","Coś poszło nie tak. Spróbuj ponownie."],
-tr:["Yeni sohbet","Ayarlar","Buraya yaz…","Nasıl yardımcı olabilirim?","%30’un altı: hafif model, istek başına %3","Limit doldu. {t} saatinde yenilenir","Bugün kalan","{t} saatinde yenilenir","Önceki sohbetleri hatırla","Tamam","Düşünüyorum…","Bir şeyler ters gitti. Tekrar dene."],
-zh:["新对话","设置","在此输入…","有什么可以帮你？","剩余不足30%：使用轻量模型，每次消耗3%","额度已用完，将于{t}重置","今日剩余","将于{t}重置","记住以前的对话","完成","思考中…","出了点问题，请重试。"],
-ja:["新しいチャット","設定","ここに入力…","何をお手伝いしましょうか？","残り30%未満：軽量モデル、1回3%","上限に達しました。{t}にリセットされます","今日の残り","{t}にリセット","過去のチャットを記憶","完了","考え中…","問題が発生しました。もう一度お試しください。"],
-ko:["새 채팅","설정","여기에 입력…","무엇을 도와드릴까요?","30% 미만: 경량 모델, 요청당 3%","한도에 도달했습니다. {t}에 초기화됩니다","오늘 남은 양","{t}에 초기화","이전 채팅 기억하기","완료","생각 중…","문제가 발생했습니다. 다시 시도하세요."],
-hi:["नई चैट","सेटिंग्स","यहाँ लिखें…","मैं कैसे मदद कर सकता हूँ?","30% से कम: हल्का मॉडल, प्रति अनुरोध 3%","सीमा पूरी हो गई। {t} पर रीसेट होगी","आज बचा","{t} पर रीसेट","पिछली चैट याद रखें","हो गया","सोच रहा हूँ…","कुछ गलत हो गया। फिर से कोशिश करें।"],
-th:["แชทใหม่","การตั้งค่า","พิมพ์ที่นี่…","ให้ช่วยอะไรดี?","เหลือไม่ถึง 30%: ใช้โมเดลแบบเบา 3% ต่อคำขอ","ถึงขีดจำกัดแล้ว รีเซ็ตเวลา {t}","เหลือวันนี้","รีเซ็ตเวลา {t}","จดจำแชทก่อนหน้า","เสร็จสิ้น","กำลังคิด…","เกิดข้อผิดพลาด ลองอีกครั้ง"]
+ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
+en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter mode, cheaper requests (Deep 3%, Heroes 2%)","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
+uk:["Новий чат","Налаштування","Напиши, що потрібно…","Чим можу допомогти?","Менше 30%: полегшений режим, запити дешевші (Deep 3%, Heroes 2%)","Ліміт вичерпано. Оновиться о {t}","Залишилось сьогодні","Оновиться о {t}","Пам’ятати минулі чати","Готово","Думаю…","Не вдалося відповісти. Спробуй ще раз."],
+es:["Nuevo chat","Ajustes","Escribe aquí…","¿En qué puedo ayudarte?","Menos del 30%: modo ligero, consultas más baratas (Deep 3%, Heroes 2%)","Límite alcanzado. Se restablece a las {t}","Restante hoy","Se restablece a las {t}","Recordar chats anteriores","Listo","Pensando…","Algo salió mal. Inténtalo de nuevo."],
+de:["Neuer Chat","Einstellungen","Schreib hier…","Wie kann ich helfen?","Unter 30 %: leichter Modus, günstigere Anfragen (Deep 3 %, Heroes 2 %)","Limit erreicht. Zurücksetzung um {t}","Heute übrig","Zurücksetzung um {t}","Frühere Chats merken","Fertig","Denke nach…","Etwas ist schiefgelaufen. Versuch es erneut."],
+fr:["Nouveau chat","Paramètres","Écris ici…","Comment puis-je aider ?","Moins de 30 % : mode allégé, demandes moins chères (Deep 3 %, Heroes 2 %)","Limite atteinte. Réinitialisation à {t}","Restant aujourd’hui","Réinitialisation à {t}","Se souvenir des chats passés","Terminé","Je réfléchis…","Une erreur est survenue. Réessaie."],
+it:["Nuova chat","Impostazioni","Scrivi qui…","Come posso aiutarti?","Meno del 30%: modalità leggera, richieste più economiche (Deep 3%, Heroes 2%)","Limite raggiunto. Si azzera alle {t}","Rimasto oggi","Si azzera alle {t}","Ricorda le chat passate","Fatto","Sto pensando…","Qualcosa è andato storto. Riprova."],
+pt:["Novo chat","Configurações","Escreva aqui…","Como posso ajudar?","Menos de 30%: modo leve, pedidos mais baratos (Deep 3%, Heroes 2%)","Limite atingido. Reinicia às {t}","Restante hoje","Reinicia às {t}","Lembrar conversas anteriores","Concluído","Pensando…","Algo deu errado. Tente novamente."],
+pl:["Nowy czat","Ustawienia","Napisz tutaj…","W czym mogę pomóc?","Poniżej 30%: lżejszy tryb, tańsze zapytania (Deep 3%, Heroes 2%)","Limit wyczerpany. Odnowi się o {t}","Pozostało dziś","Odnowi się o {t}","Pamiętaj poprzednie czaty","Gotowe","Myślę…","Coś poszło nie tak. Spróbuj ponownie."],
+tr:["Yeni sohbet","Ayarlar","Buraya yaz…","Nasıl yardımcı olabilirim?","%30’un altı: hafif mod, daha ucuz istekler (Deep %3, Heroes %2)","Limit doldu. {t} saatinde yenilenir","Bugün kalan","{t} saatinde yenilenir","Önceki sohbetleri hatırla","Tamam","Düşünüyorum…","Bir şeyler ters gitti. Tekrar dene."],
+zh:["新对话","设置","在此输入…","有什么可以帮你？","剩余不足30%：轻量模式，请求更省（Deep 3%，Heroes 2%）","额度已用完，将于{t}重置","今日剩余","将于{t}重置","记住以前的对话","完成","思考中…","出了点问题，请重试。"],
+ja:["新しいチャット","設定","ここに入力…","何をお手伝いしましょうか？","残り30%未満：軽量モード、リクエストが安くなります（Deep 3%、Heroes 2%）","上限に達しました。{t}にリセットされます","今日の残り","{t}にリセット","過去のチャットを記憶","完了","考え中…","問題が発生しました。もう一度お試しください。"],
+ko:["새 채팅","설정","여기에 입력…","무엇을 도와드릴까요?","30% 미만: 경량 모드, 요청 비용 절감 (Deep 3%, Heroes 2%)","한도에 도달했습니다. {t}에 초기화됩니다","오늘 남은 양","{t}에 초기화","이전 채팅 기억하기","완료","생각 중…","문제가 발생했습니다. 다시 시도하세요."],
+hi:["नई चैट","सेटिंग्स","यहाँ लिखें…","मैं कैसे मदद कर सकता हूँ?","30% से कम: हल्का मोड, अनुरोध सस्ते (Deep 3%, Heroes 2%)","सीमा पूरी हो गई। {t} पर रीसेट होगी","आज बचा","{t} पर रीसेट","पिछली चैट याद रखें","हो गया","सोच रहा हूँ…","कुछ गलत हो गया। फिर से कोशिश करें।"],
+th:["แชทใหม่","การตั้งค่า","พิมพ์ที่นี่…","ให้ช่วยอะไรดี?","เหลือไม่ถึง 30%: โหมดเบา คำขอถูกลง (Deep 3%, Heroes 2%)","ถึงขีดจำกัดแล้ว รีเซ็ตเวลา {t}","เหลือวันนี้","รีเซ็ตเวลา {t}","จดจำแชทก่อนหน้า","เสร็จสิ้น","กำลังคิด…","เกิดข้อผิดพลาด ลองอีกครั้ง"]
+};
+const H = {
+ru:["Heroes 1: для быстрых задач","Deep 1: для более сложных задач"],
+en:["Heroes 1: for quick tasks","Deep 1: for more complex tasks"],
+uk:["Heroes 1: для швидких завдань","Deep 1: для складніших завдань"],
+es:["Heroes 1: para tareas rápidas","Deep 1: para tareas más complejas"],
+de:["Heroes 1: für schnelle Aufgaben","Deep 1: für komplexere Aufgaben"],
+fr:["Heroes 1 : pour les tâches rapides","Deep 1 : pour les tâches plus complexes"],
+it:["Heroes 1: per compiti rapidi","Deep 1: per compiti più complessi"],
+pt:["Heroes 1: para tarefas rápidas","Deep 1: para tarefas mais complexas"],
+pl:["Heroes 1: do szybkich zadań","Deep 1: do bardziej złożonych zadań"],
+tr:["Heroes 1: hızlı görevler için","Deep 1: daha karmaşık görevler için"],
+zh:["Heroes 1：适合快速任务","Deep 1：适合更复杂的任务"],
+ja:["Heroes 1：素早いタスク向け","Deep 1：より複雑なタスク向け"],
+ko:["Heroes 1: 빠른 작업용","Deep 1: 더 복잡한 작업용"],
+hi:["Heroes 1: तेज़ कामों के लिए","Deep 1: अधिक जटिल कामों के लिए"],
+th:["Heroes 1: สำหรับงานเร็ว","Deep 1: สำหรับงานที่ซับซ้อนกว่า"]
 };
 const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19c37d"/><stop offset="1" stop-color="#6c5ce7"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#lg1)"/><path d="M32 11c1.7 10.5 8.5 17.3 19 19-10.5 1.7-17.3 8.5-19 19-1.7-10.5-8.5-17.3-19-19 10.5-1.7 17.3-8.5 19-19z" fill="#fff"/><circle cx="48" cy="16" r="3" fill="#fff" opacity=".8"/></svg>';
 const $ = id => document.getElementById(id);
@@ -151,12 +170,13 @@ const chat = () => chats.find(c => c.id === cid);
 const t = (i, v) => { const s = (T[lang] || T.en)[i]; return v === undefined ? s : s.replace("{t}", v); };
 
 const left = () => srv.left;
-const light = () => cur === "deep" && srv.left > 0 && srv.left < 30;
+const light = () => srv.left > 0 && srv.left < 30;
 const hhmm = x => new Date(x).toLocaleTimeString(lang || "ru", {hour: "2-digit", minute: "2-digit"});
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
 
 function refresh(){
   const l = left(), col = color(l);
+  $("mh").textContent = (H[lang] || H.en)[cur === "deep" ? 1 : 0];
   $("lite").classList.toggle("show", light() && !liteHidden);
   const out = l <= 0;
   $("limit").classList.toggle("show", out);
@@ -292,14 +312,15 @@ async function ask(model, msgs){
 async function send(){
   const text = $("in").value.trim();
   if(!text || busy || left() <= 0) return;
+  const lt = light(), tag = NAMES[cur] + (lt ? " ⚡" : "");
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: text}); save(); renderAll();
-  const body = bubble("assistant", t(10), NAMES[cur] + (light() ? " ⚡" : ""));
+  const body = bubble("assistant", t(10), tag);
   try{
     const d = await ask(cur, c.msgs);
-    c.msgs.push({role: "assistant", content: d.text, model: NAMES[cur] + (d.light ? " ⚡" : "")}); save();
+    c.msgs.push({role: "assistant", content: d.text, model: tag}); save();
     srv = {left: d.left, resetAt: d.resetAt};
     fill(body, d.text);
   }catch(e){
