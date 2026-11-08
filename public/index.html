@@ -171,7 +171,7 @@ const t = (i, v) => { const s = (T[lang] || T.en)[i]; return v === undefined ? s
 
 const left = () => srv.left;
 const light = () => srv.left > 0 && srv.left < 30;
-const hhmm = x => new Date(x).toLocaleTimeString(lang || "ru", {hour: "2-digit", minute: "2-digit"});
+const hhmm = x => { const d = new Date(x), l = lang || "ru"; return d.toLocaleTimeString(l, {hour: "2-digit", minute: "2-digit"}) + ", " + d.toLocaleDateString(l, {day: "numeric", month: "long"}); };
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
 
 function refresh(){
