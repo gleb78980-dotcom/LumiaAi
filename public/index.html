@@ -58,7 +58,8 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .ch{position:relative;background:var(--sf);border-radius:12px;font-size:13px;padding:6px 28px 6px 10px;max-width:190px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ch.p{padding:0;width:56px;height:56px}
 .ch img{width:56px;height:56px;object-fit:cover;display:block;border-radius:12px}
-.ch button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:18px;height:18px;padding:0;display:flex;align-items:center;justify-content:center}
+.ch.v::after{content:"";position:absolute;left:50%;top:50%;margin:-8px 0 0 -5px;border-left:14px solid rgba(255,255,255,.92);border-top:8px solid transparent;border-bottom:8px solid transparent}
+.ch button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:18px;height:18px;padding:0;display:flex;align-items:center;justify-content:center;z-index:1}
 .bar{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:10px 10px 8px 14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
 textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;background:none;color:var(--tx);padding:4px 2px;font:inherit;outline:none}
 .row2{display:flex;align-items:center;gap:4px;margin-top:4px}
@@ -127,13 +128,15 @@ textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;backgr
       </div>
     </div>
     <input type="file" id="fi" accept="image/*,video/*" multiple hidden>
-    <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,.mp3,.wav,.m4a,.ogg,.flac,.webm,.mp4,.mpeg,.mpga,.obj,.stl,.glb,.gltf,.ply,text/*,audio/*">
+    <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,.pdf,.mp3,.wav,.m4a,.aac,.ogg,.flac,.obj,.stl,.glb,.gltf,.ply,text/*,audio/*,application/pdf">
   </div>
 </div>
 <div class="ov" id="ov"><div class="card">
   <h2 data-i="1"></h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
     <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% (2%) · Deep 1 — 6% (3%)</div></div>
+  <div class="row"><div class="tg"><b id="cpct">600 / 600</b><span class="small" id="crst"></span></div><div class="pb"><i id="cbar"></i></div>
+    <div class="small" style="margin-top:6px"><span data-i="20"></span><br><span data-i="21"></span></div></div>
   <div class="row tg"><span data-i="8"></span><input type="checkbox" id="mem"></div>
   <div class="row tg"><span class="ico" data-ic="globe"></span><select id="lsel"></select></div>
   <button id="close" type="button" data-i="9"></button>
@@ -163,7 +166,8 @@ check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
 pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'
 };
 const ic = (n, s) => '<svg viewBox="0 0 24 24" width="' + (s || 20) + '" height="' + (s || 20) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>';
-// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый режим, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка, 12 фото, 13 файл, 14 нет микрофона, 15 фото недоступно, 16 меню фото и видео, 17 меню файлы, 18 ошибка аудио
+// 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка,
+// 12 фото, 13 файл, 14 нет микрофона, 15 распознавание недоступно, 16 меню фото и видео, 17 меню файлы, 18 долгая обработка, 19 кредиты закончились, 20 заголовок кредитов, 21 цены кредитов, 22 слово «видео»
 const T = {
 ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
 en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter mode, cheaper requests (Deep 3%, Heroes 2%)","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
@@ -181,41 +185,24 @@ ko:["새 채팅","설정","여기에 입력…","무엇을 도와드릴까요?",
 hi:["नई चैट","सेटिंग्स","यहाँ लिखें…","मैं कैसे मदद कर सकता हूँ?","30% से कम: हल्का मोड, अनुरोध सस्ते (Deep 3%, Heroes 2%)","सीमा पूरी हो गई। {t} पर रीसेट होगी","आज बचा","{t} पर रीसेट","पिछली चैट याद रखें","हो गया","सोच रहा हूँ…","कुछ गलत हो गया। फिर से कोशिश करें।"],
 th:["แชทใหม่","การตั้งค่า","พิมพ์ที่นี่…","ให้ช่วยอะไรดี?","เหลือไม่ถึง 30%: โหมดเบา คำขอถูกลง (Deep 3%, Heroes 2%)","ถึงขีดจำกัดแล้ว รีเซ็ตเวลา {t}","เหลือวันนี้","รีเซ็ตเวลา {t}","จดจำแชทก่อนหน้า","เสร็จสิ้น","กำลังคิด…","เกิดข้อผิดพลาด ลองอีกครั้ง"]
 };
-const X = {
-ru:["Фото","Файл","Голосовой ввод не поддерживается в этом браузере. Используй микрофон на клавиатуре.","Анализ фото временно недоступен, попробуйте позже."],
-en:["Photo","File","Voice input isn’t supported in this browser. Use your keyboard’s microphone.","Photo analysis is temporarily unavailable, please try again later."],
-uk:["Фото","Файл","Голосовий ввід не підтримується в цьому браузері. Скористайся мікрофоном на клавіатурі.","Аналіз фото тимчасово недоступний, спробуйте пізніше."],
-es:["Foto","Archivo","Este navegador no admite entrada de voz. Usa el micrófono del teclado.","El análisis de fotos no está disponible temporalmente, inténtalo más tarde."],
-de:["Foto","Datei","Spracheingabe wird in diesem Browser nicht unterstützt. Nutze das Mikrofon der Tastatur.","Die Fotoanalyse ist vorübergehend nicht verfügbar, bitte versuche es später erneut."],
-fr:["Photo","Fichier","La saisie vocale n’est pas prise en charge par ce navigateur. Utilise le micro du clavier.","L’analyse de photos est temporairement indisponible, réessaie plus tard."],
-it:["Foto","File","L’input vocale non è supportato da questo browser. Usa il microfono della tastiera.","L’analisi delle foto è temporaneamente non disponibile, riprova più tardi."],
-pt:["Foto","Arquivo","Este navegador não suporta entrada de voz. Use o microfone do teclado.","A análise de fotos está temporariamente indisponível, tente novamente mais tarde."],
-pl:["Zdjęcie","Plik","Ta przeglądarka nie obsługuje wprowadzania głosowego. Użyj mikrofonu na klawiaturze.","Analiza zdjęć jest tymczasowo niedostępna, spróbuj ponownie później."],
-tr:["Fotoğraf","Dosya","Bu tarayıcı sesli girişi desteklemiyor. Klavyenin mikrofonunu kullan.","Fotoğraf analizi geçici olarak kullanılamıyor, lütfen daha sonra tekrar deneyin."],
-zh:["照片","文件","此浏览器不支持语音输入，请使用键盘上的麦克风。","照片分析暂时不可用，请稍后再试。"],
-ja:["写真","ファイル","このブラウザは音声入力に対応していません。キーボードのマイクをお使いください。","写真の分析は一時的に利用できません。後でもう一度お試しください。"],
-ko:["사진","파일","이 브라우저는 음성 입력을 지원하지 않습니다. 키보드의 마이크를 사용하세요.","사진 분석을 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요."],
-hi:["फ़ोटो","फ़ाइल","यह ब्राउज़र वॉइस इनपुट का समर्थन नहीं करता। कीबोर्ड का माइक इस्तेमाल करें।","फ़ोटो विश्लेषण अस्थायी रूप से उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।"],
-th:["รูปภาพ","ไฟล์","เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง ใช้ไมโครโฟนบนคีย์บอร์ดแทน","การวิเคราะห์รูปภาพไม่พร้อมใช้งานชั่วคราว โปรดลองอีกครั้งในภายหลัง"]
+const Y = {
+ru:["Фото","Файл","Голосовой ввод не поддерживается в этом браузере. Используй микрофон на клавиатуре.","Распознавание фото, видео и файлов временно недоступно, попробуйте позже.","Фото и видео","Файлы, PDF, аудио, 3D","Распознавание фото, видео и файлов занимает больше времени…","Кредиты на фото, видео и файлы закончились. Обновятся в {t}. Текстовые запросы работают.","Кредиты (фото, видео, файлы)","Фото 20 · Видео 25 · Файл 30 кредитов. Видео −1%, файл −2%","Видео"],
+en:["Photo","File","Voice input isn’t supported in this browser. Use your keyboard’s microphone.","Recognition of photos, videos and files is temporarily unavailable, please try again later.","Photos & video","Files, PDF, audio, 3D","Recognizing photos, videos and files takes longer…","Credits for photos, videos and files are used up. They reset at {t}. Text requests still work.","Credits (photos, videos, files)","Photo 20 · Video 25 · File 30 credits. Video −1%, file −2%","Video"],
+uk:["Фото","Файл","Голосовий ввід не підтримується в цьому браузері. Скористайся мікрофоном на клавіатурі.","Розпізнавання фото, відео та файлів тимчасово недоступне, спробуйте пізніше.","Фото та відео","Файли, PDF, аудіо, 3D","Розпізнавання фото, відео та файлів займає більше часу…","Кредити на фото, відео та файли вичерпано. Оновляться о {t}. Текстові запити працюють.","Кредити (фото, відео, файли)","Фото 20 · Відео 25 · Файл 30 кредитів. Відео −1%, файл −2%","Відео"],
+es:["Foto","Archivo","Este navegador no admite entrada de voz. Usa el micrófono del teclado.","El reconocimiento de fotos, vídeos y archivos no está disponible temporalmente, inténtalo más tarde.","Fotos y vídeo","Archivos, PDF, audio, 3D","Reconocer fotos, vídeos y archivos lleva más tiempo…","Se agotaron los créditos de fotos, vídeos y archivos. Se restablecen a las {t}. Las consultas de texto siguen funcionando.","Créditos (fotos, vídeos, archivos)","Foto 20 · Vídeo 25 · Archivo 30 créditos. Vídeo −1 %, archivo −2 %","Vídeo"],
+de:["Foto","Datei","Spracheingabe wird in diesem Browser nicht unterstützt. Nutze das Mikrofon der Tastatur.","Die Erkennung von Fotos, Videos und Dateien ist vorübergehend nicht verfügbar, bitte versuche es später erneut.","Fotos & Video","Dateien, PDF, Audio, 3D","Das Erkennen von Fotos, Videos und Dateien dauert länger…","Die Credits für Fotos, Videos und Dateien sind aufgebraucht. Zurücksetzung um {t}. Textanfragen funktionieren weiter.","Credits (Fotos, Videos, Dateien)","Foto 20 · Video 25 · Datei 30 Credits. Video −1 %, Datei −2 %","Video"],
+fr:["Photo","Fichier","La saisie vocale n’est pas prise en charge par ce navigateur. Utilise le micro du clavier.","La reconnaissance des photos, vidéos et fichiers est temporairement indisponible, réessaie plus tard.","Photos et vidéo","Fichiers, PDF, audio, 3D","La reconnaissance des photos, vidéos et fichiers prend plus de temps…","Les crédits pour photos, vidéos et fichiers sont épuisés. Réinitialisation à {t}. Les demandes texte fonctionnent toujours.","Crédits (photos, vidéos, fichiers)","Photo 20 · Vidéo 25 · Fichier 30 crédits. Vidéo −1 %, fichier −2 %","Vidéo"],
+it:["Foto","File","L’input vocale non è supportato da questo browser. Usa il microfono della tastiera.","Il riconoscimento di foto, video e file è temporaneamente non disponibile, riprova più tardi.","Foto e video","File, PDF, audio, 3D","Il riconoscimento di foto, video e file richiede più tempo…","I crediti per foto, video e file sono esauriti. Si azzerano alle {t}. Le richieste di testo funzionano ancora.","Crediti (foto, video, file)","Foto 20 · Video 25 · File 30 crediti. Video −1%, file −2%","Video"],
+pt:["Foto","Arquivo","Este navegador não suporta entrada de voz. Use o microfone do teclado.","O reconhecimento de fotos, vídeos e arquivos está temporariamente indisponível, tente mais tarde.","Fotos e vídeo","Arquivos, PDF, áudio, 3D","Reconhecer fotos, vídeos e arquivos leva mais tempo…","Os créditos de fotos, vídeos e arquivos acabaram. Reiniciam às {t}. Pedidos de texto continuam funcionando.","Créditos (fotos, vídeos, arquivos)","Foto 20 · Vídeo 25 · Arquivo 30 créditos. Vídeo −1%, arquivo −2%","Vídeo"],
+pl:["Zdjęcie","Plik","Ta przeglądarka nie obsługuje wprowadzania głosowego. Użyj mikrofonu na klawiaturze.","Rozpoznawanie zdjęć, filmów i plików jest tymczasowo niedostępne, spróbuj później.","Zdjęcia i wideo","Pliki, PDF, audio, 3D","Rozpoznawanie zdjęć, filmów i plików trwa dłużej…","Kredyty na zdjęcia, filmy i pliki wyczerpane. Odnowią się o {t}. Zapytania tekstowe działają.","Kredyty (zdjęcia, filmy, pliki)","Zdjęcie 20 · Film 25 · Plik 30 kredytów. Film −1%, plik −2%","Film"],
+tr:["Fotoğraf","Dosya","Bu tarayıcı sesli girişi desteklemiyor. Klavyenin mikrofonunu kullan.","Fotoğraf, video ve dosya tanıma geçici olarak kullanılamıyor, lütfen daha sonra tekrar deneyin.","Fotoğraf ve video","Dosyalar, PDF, ses, 3D","Fotoğraf, video ve dosyaların tanınması daha uzun sürer…","Fotoğraf, video ve dosya kredileri bitti. {t} saatinde yenilenir. Metin istekleri çalışmaya devam ediyor.","Krediler (fotoğraf, video, dosya)","Fotoğraf 20 · Video 25 · Dosya 30 kredi. Video −%1, dosya −%2","Video"],
+zh:["照片","文件","此浏览器不支持语音输入，请使用键盘上的麦克风。","照片、视频和文件识别暂时不可用，请稍后再试。","照片和视频","文件、PDF、音频、3D","识别照片、视频和文件需要更长时间…","照片、视频和文件的额度已用完，将于{t}重置。文字请求仍可使用。","额度（照片、视频、文件）","照片20 · 视频25 · 文件30额度。视频 −1%，文件 −2%","视频"],
+ja:["写真","ファイル","このブラウザは音声入力に対応していません。キーボードのマイクをお使いください。","写真・動画・ファイルの認識は一時的に利用できません。後でもう一度お試しください。","写真と動画","ファイル、PDF、音声、3D","写真・動画・ファイルの認識には時間がかかります…","写真・動画・ファイルのクレジットを使い切りました。{t}にリセットされます。テキストのリクエストは利用できます。","クレジット（写真・動画・ファイル）","写真20・動画25・ファイル30クレジット。動画 −1%、ファイル −2%","動画"],
+ko:["사진","파일","이 브라우저는 음성 입력을 지원하지 않습니다. 키보드의 마이크를 사용하세요.","사진, 동영상, 파일 인식을 일시적으로 사용할 수 없습니다. 나중에 다시 시도해 주세요.","사진 및 동영상","파일, PDF, 오디오, 3D","사진, 동영상, 파일 인식에는 더 오랜 시간이 걸립니다…","사진, 동영상, 파일 크레딧을 모두 사용했습니다. {t}에 초기화됩니다. 텍스트 요청은 계속 사용할 수 있습니다.","크레딧 (사진, 동영상, 파일)","사진 20 · 동영상 25 · 파일 30 크레딧. 동영상 −1%, 파일 −2%","동영상"],
+hi:["फ़ोटो","फ़ाइल","यह ब्राउज़र वॉइस इनपुट का समर्थन नहीं करता। कीबोर्ड का माइक इस्तेमाल करें।","फ़ोटो, वीडियो और फ़ाइलों की पहचान अस्थायी रूप से उपलब्ध नहीं है, कृपया बाद में पुनः प्रयास करें।","फ़ोटो और वीडियो","फ़ाइलें, PDF, ऑडियो, 3D","फ़ोटो, वीडियो और फ़ाइलों की पहचान में अधिक समय लगता है…","फ़ोटो, वीडियो और फ़ाइलों के क्रेडिट खत्म हो गए। {t} पर रीसेट होंगे। टेक्स्ट अनुरोध काम करते रहेंगे।","क्रेडिट (फ़ोटो, वीडियो, फ़ाइलें)","फ़ोटो 20 · वीडियो 25 · फ़ाइल 30 क्रेडिट। वीडियो −1%, फ़ाइल −2%","वीडियो"],
+th:["รูปภาพ","ไฟล์","เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง ใช้ไมโครโฟนบนคีย์บอร์ดแทน","การจดจำรูปภาพ วิดีโอ และไฟล์ไม่พร้อมใช้งานชั่วคราว โปรดลองอีกครั้งในภายหลัง","รูปภาพและวิดีโอ","ไฟล์ PDF เสียง 3D","การจดจำรูปภาพ วิดีโอ และไฟล์ใช้เวลานานกว่า…","เครดิตสำหรับรูปภาพ วิดีโอ และไฟล์หมดแล้ว รีเซ็ตเวลา {t} คำขอข้อความยังใช้งานได้","เครดิต (รูปภาพ วิดีโอ ไฟล์)","รูปภาพ 20 · วิดีโอ 25 · ไฟล์ 30 เครดิต วิดีโอ −1% ไฟล์ −2%","วิดีโอ"]
 };
-const X2 = {
-ru:["Фото и видео","Файлы, аудио, 3D","Не удалось расшифровать аудио: речь не найдена или сервис недоступен. Попробуйте позже."],
-en:["Photos & video","Files, audio, 3D","Couldn’t transcribe the audio: no speech found or the service is unavailable. Try again later."],
-uk:["Фото та відео","Файли, аудіо, 3D","Не вдалося розшифрувати аудіо: мову не знайдено або сервіс недоступний. Спробуйте пізніше."],
-es:["Fotos y vídeo","Archivos, audio, 3D","No se pudo transcribir el audio: no hay voz o el servicio no está disponible. Inténtalo más tarde."],
-de:["Fotos & Video","Dateien, Audio, 3D","Audio konnte nicht transkribiert werden: keine Sprache gefunden oder Dienst nicht verfügbar. Versuche es später erneut."],
-fr:["Photos et vidéo","Fichiers, audio, 3D","Impossible de transcrire l’audio : aucune parole détectée ou service indisponible. Réessaie plus tard."],
-it:["Foto e video","File, audio, 3D","Impossibile trascrivere l’audio: nessun parlato trovato o servizio non disponibile. Riprova più tardi."],
-pt:["Fotos e vídeo","Arquivos, áudio, 3D","Não foi possível transcrever o áudio: sem fala ou serviço indisponível. Tente mais tarde."],
-pl:["Zdjęcia i wideo","Pliki, audio, 3D","Nie udało się przepisać audio: brak mowy lub usługa niedostępna. Spróbuj później."],
-tr:["Fotoğraf ve video","Dosyalar, ses, 3D","Ses yazıya dökülemedi: konuşma bulunamadı veya hizmet kullanılamıyor. Daha sonra tekrar dene."],
-zh:["照片和视频","文件、音频、3D","无法转写音频：未检测到语音或服务不可用，请稍后再试。"],
-ja:["写真と動画","ファイル、音声、3D","音声を文字起こしできませんでした。音声が見つからないか、サービスが利用できません。後でお試しください。"],
-ko:["사진 및 동영상","파일, 오디오, 3D","오디오를 변환하지 못했습니다. 음성이 없거나 서비스를 사용할 수 없습니다. 나중에 다시 시도하세요."],
-hi:["फ़ोटो और वीडियो","फ़ाइलें, ऑडियो, 3D","ऑडियो ट्रांसक्राइब नहीं हो सका: बोली नहीं मिली या सेवा उपलब्ध नहीं है। बाद में प्रयास करें।"],
-th:["รูปภาพและวิดีโอ","ไฟล์ เสียง 3D","ถอดเสียงไม่สำเร็จ: ไม่พบเสียงพูดหรือบริการไม่พร้อมใช้งาน โปรดลองใหม่ภายหลัง"]
-};
-for (const c in X) T[c].push(...X[c], ...X2[c]);
+for (const c in Y) T[c].push(...Y[c]);
 const H = {
 ru:["Heroes 1: для быстрых задач","Deep 1: для более сложных задач"],
 en:["Heroes 1: for quick tasks","Deep 1: for more complex tasks"],
@@ -237,8 +224,8 @@ const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1=
 const $ = id => document.getElementById(id);
 document.querySelectorAll("[data-ic]").forEach(e => { e.innerHTML = ic(e.dataset.ic, +e.dataset.s || 20); });
 let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false;
-let srv = {left: 100, resetAt: 0}, did = "", lang = "";
-let pics = [], docs = [], rec = null;
+let srv = {left: 100, resetAt: 0, cLeft: 600, cReset: 0}, did = "", lang = "";
+let pics = [], vids = [], docs = [], bins = [], rec = null;
 try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; lang = localStorage.getItem(LK) || ""; } catch (e) {}
 if (!T[lang]) lang = "";
 if (!did){
@@ -250,15 +237,16 @@ if (chats.length) cid = chats[0].id;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(chats.slice(0, 50))); } catch (e) {} };
 const chat = () => chats.find(c => c.id === cid);
 const t = (i, v) => { const s = (T[lang] || T.en)[i]; return v === undefined ? s : s.replace("{t}", v); };
+const setSrv = d => { srv = {left: d.left, resetAt: d.resetAt, cLeft: d.cLeft, cReset: d.cReset}; };
 
 const left = () => srv.left;
 const light = () => srv.left > 0 && srv.left < 30;
 const hhmm = x => { const d = new Date(x), l = lang || "ru"; return d.toLocaleTimeString(l, {hour: "2-digit", minute: "2-digit"}) + ", " + d.toLocaleDateString(l, {day: "numeric", month: "long"}); };
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
-function note(s){ $("limit").textContent = s; $("limit").classList.add("show"); setTimeout(refresh, 3500); }
+function note(s){ $("limit").textContent = s; $("limit").classList.add("show"); setTimeout(refresh, 4000); }
 
 function refresh(){
-  const l = left(), col = color(l);
+  const l = left(), col = color(l), cl = srv.cLeft, cc = color(cl / 6);
   $("mh").textContent = (H[lang] || H.en)[cur === "deep" ? 1 : 0];
   $("lite").classList.toggle("show", light() && !liteHidden);
   const out = l <= 0;
@@ -269,9 +257,14 @@ function refresh(){
   $("pct").style.color = col;
   $("bar").style.width = l + "%";
   $("bar").style.background = col;
+  $("cpct").textContent = cl + " / 600";
+  $("cpct").style.color = cc;
+  $("cbar").style.width = cl / 6 + "%";
+  $("cbar").style.background = cc;
   $("chip").firstChild.style.background = col;
   $("chip").lastChild.textContent = l + "%";
   $("rst").textContent = srv.resetAt ? t(7, hhmm(srv.resetAt)) : "";
+  $("crst").textContent = srv.cReset ? t(7, hhmm(srv.cReset)) : "";
 }
 function ui(){
   document.documentElement.lang = lang || "ru";
@@ -291,7 +284,7 @@ async function loadUsage(){
   try{
     const r = await fetch("/api/usage", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({did})});
     const d = await r.json();
-    if(r.ok){ srv = {left: d.left, resetAt: d.resetAt}; refresh(); }
+    if(r.ok){ setSrv(d); refresh(); }
   }catch(e){}
 }
 function setModel(k){
@@ -335,6 +328,7 @@ function shrink(file){
     r.readAsDataURL(file);
   });
 }
+const b64 = f => new Promise(res => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1] || ""); r.onerror = () => res(""); r.readAsDataURL(f); });
 function frames(file, n){
   return new Promise(res => {
     const v = document.createElement("video"), url = URL.createObjectURL(file), out = [];
@@ -342,12 +336,12 @@ function frames(file, n){
     const done = () => { URL.revokeObjectURL(url); res(out); };
     v.onerror = done;
     v.onloadedmetadata = async () => {
-      const d = v.duration || 1, w = v.videoWidth || 640, h = v.videoHeight || 360, k = Math.min(1, 896 / Math.max(w, h));
+      const d = v.duration || 1, w = v.videoWidth || 640, h = v.videoHeight || 360, k = Math.min(1, 640 / Math.max(w, h));
       const c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
       const g = c.getContext("2d");
       for(let i = 0; i < n; i++){
         await new Promise(r => { v.onseeked = r; setTimeout(r, 2000); v.currentTime = Math.max(0, Math.min(d - 0.05, d * (i + 0.5) / n)); });
-        try { g.drawImage(v, 0, 0, c.width, c.height); out.push(c.toDataURL("image/jpeg", .8)); } catch (e) {}
+        try { g.drawImage(v, 0, 0, c.width, c.height); out.push(c.toDataURL("image/jpeg", .7)); } catch (e) {}
       }
       done();
     };
@@ -390,15 +384,7 @@ async function info3d(f){
   const nm = a => (a || []).slice(0, 12).map(x => x.name || "?").join(", ") || "-", ct = a => (a || []).length;
   return hd + ext.toUpperCase() + ", meshes " + ct(j.meshes) + " (" + nm(j.meshes) + "), materials " + ct(j.materials) + " (" + nm(j.materials) + "), nodes " + ct(j.nodes) + ", textures " + ct(j.textures) + ", images " + ct(j.images) + ", animations " + ct(j.animations) + " (" + nm(j.animations) + "), skins " + ct(j.skins) + ", generator: " + ((j.asset && j.asset.generator) || "-") + ".";
 }
-async function stt(f){
-  try{
-    const r = await fetch("/api/stt?did=" + encodeURIComponent(did), {method: "POST", headers: {"Content-Type": f.type || "application/octet-stream", "X-Name": encodeURIComponent(f.name)}, body: f});
-    const d = await r.json().catch(() => ({}));
-    if(r.ok){ srv = {left: d.left, resetAt: d.resetAt}; refresh(); return d.text; }
-    if(d.limit){ srv = {left: 0, resetAt: d.resetAt}; refresh(); return null; }
-  }catch(e){}
-  note(t(18)); return null;
-}
+const rawSize = () => vids.reduce((a, v) => a + v.size, 0) + bins.reduce((a, b) => a + b.size, 0);
 function renderAtt(){
   const a = $("att"); a.textContent = "";
   const add = (d, arr, i) => {
@@ -407,7 +393,9 @@ function renderAtt(){
     d.append(x); a.append(d);
   };
   pics.forEach((u, i) => { const d = document.createElement("div"); d.className = "ch p"; const im = document.createElement("img"); im.src = u; d.append(im); add(d, pics, i); });
+  vids.forEach((v, i) => { const d = document.createElement("div"); d.className = "ch p v"; if(v.frames[0]){ const im = document.createElement("img"); im.src = v.frames[0]; d.append(im); } add(d, vids, i); });
   docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(f.name)); add(d, docs, i); });
+  bins.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(f.name)); add(d, bins, i); });
 }
 $("plus").onclick = () => { $("pm").style.display = $("pm").style.display === "block" ? "none" : "block"; };
 $("pp").onclick = () => { $("pm").style.display = "none"; $("fi").click(); };
@@ -415,44 +403,48 @@ $("pf").onclick = () => { $("pm").style.display = "none"; $("ff").click(); };
 document.addEventListener("click", e => { if(!e.target.closest("#pm,#plus")) $("pm").style.display = "none"; });
 $("fi").onchange = async e => {
   for(const f of e.target.files){
-    if(pics.length >= 5){ note(t(12) + " ≤ 5"); break; }
     if(f.type.startsWith("video/")){
-      if(f.size > 5e6){ note(t(16) + " ≤ 5 MB"); continue; }
-      note(t(10));
-      for(const u of await frames(f, Math.min(4, 5 - pics.length))) pics.push(u);
+      if(vids.length >= 3){ note(t(22) + " ≤ 3"); continue; }
+      if(f.size > 5e6){ note(t(22) + " ≤ 5 MB"); continue; }
+      if(rawSize() + f.size > 12e6){ note("≤ 12 MB"); continue; }
+      note("…");
+      const data = await b64(f); if(!data) continue;
+      vids.push({name: f.name, mime: f.type || "video/mp4", data, size: f.size, frames: await frames(f, 2)});
     } else {
+      if(pics.length >= 5){ note(t(12) + " ≤ 5"); break; }
       const u = await shrink(f); if(u) pics.push(u);
     }
     renderAtt();
   }
   e.target.value = ""; renderAtt(); refresh();
 };
-const AUD = /\.(mp3|wav|m4a|ogg|flac|webm|mp4|mpeg|mpga)$/i, D3 = /\.(obj|stl|glb|gltf|ply)$/i;
+const AUD = /\.(mp3|wav|m4a|aac|ogg|flac)$/i, D3 = /\.(obj|stl|glb|gltf|ply)$/i;
+const AM = {mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/aac", aac: "audio/aac", ogg: "audio/ogg", flac: "audio/flac"};
 $("ff").onchange = async e => {
-  const hint = t(13) + ": txt · md · csv · json · code · mp3 · wav · m4a · ogg · flac · obj · stl · glb · gltf · ply";
+  const hint = t(13) + ": txt · md · csv · json · code · pdf · mp3 · wav · m4a · aac · ogg · flac · obj · stl · glb · gltf · ply";
   for(const f of e.target.files){
-    if(docs.length >= 3){ note(t(13) + " ≤ 3"); break; }
+    if(docs.length + bins.length >= 3){ note(t(13) + " ≤ 3"); break; }
+    const ext = f.name.split(".").pop().toLowerCase();
     if(D3.test(f.name)){
       if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
       let s = null; try { s = await info3d(f); } catch (x) {}
       if(!s){ note(hint); continue; }
       docs.push({name: f.name, text: s.slice(0, 4000)}); renderAtt(); continue;
     }
-    if(AUD.test(f.name) || f.type.startsWith("audio/")){
-      if(!AUD.test(f.name)){ note(hint); continue; }
+    if(AUD.test(f.name) || ext === "pdf"){
       if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
-      note(t(10));
-      const tx = await stt(f);
-      if(tx){ docs.push({name: f.name, text: "(audio transcript)\n" + tx.slice(0, 5000)}); renderAtt(); refresh(); }
-      continue;
+      if(rawSize() + f.size > 12e6){ note("≤ 12 MB"); continue; }
+      note("…");
+      const data = await b64(f); if(!data) continue;
+      bins.push({name: f.name, mime: ext === "pdf" ? "application/pdf" : AM[ext], data, size: f.size}); renderAtt(); refresh(); continue;
     }
     if(f.size > 2e6){ note(t(13) + " ≤ 2 MB"); continue; }
-    if(/\.(pdf|docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk)$/i.test(f.name)){ note(hint); continue; }
+    if(/\.(docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk|mp4|webm)$/i.test(f.name)){ note(hint); continue; }
     let txt = ""; try { txt = await f.text(); } catch (x) {}
     if(!txt || txt.indexOf("\u0000") >= 0){ note(hint); continue; }
     docs.push({name: f.name, text: txt.slice(0, 4000)});
   }
-  e.target.value = ""; renderAtt();
+  e.target.value = ""; renderAtt(); refresh();
 };
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -541,11 +533,13 @@ function memory(){
     return "- " + c.title + (q ? ": " + q.content.slice(0, 80) : "");
   }).join("\n");
 }
-async function ask(model, msgs, apiText, imgs){
+async function ask(model, msgs, apiText, P, V, B, nf){
   const m = msgs.map(({role, content}) => ({role, content}));
   m[m.length - 1].content = apiText;
   const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({did, lang, model, memory: memory(), images: imgs, messages: m})});
+    body: JSON.stringify({did, lang, model, memory: memory(), images: P, nfiles: nf,
+      videos: V.map(v => ({mime: v.mime, data: v.data, frames: v.frames})),
+      files: B.map(b => ({name: b.name, mime: b.mime, data: b.data})), messages: m})});
   const d = await r.json().catch(() => ({}));
   if(!r.ok) throw {code: r.status, data: d};
   return d;
@@ -553,26 +547,33 @@ async function ask(model, msgs, apiText, imgs){
 async function send(){
   const text = $("in").value.trim();
   if(!text || busy || left() <= 0) return;
+  const nf = docs.length + bins.length, media = pics.length + vids.length + nf > 0;
+  const need = pics.length * 20 + vids.length * 25 + nf * 30;
+  if(need > srv.cLeft){ note(t(19, hhmm(srv.cReset))); return; }
   if(rec) rec.stop();
-  const imgs = pics.slice(), fl = docs.slice();
-  const shown = text + (imgs.length ? "\n" + t(12) + " × " + imgs.length : "") + fl.map(f => "\n" + t(13) + ": " + f.name).join("");
-  const apiText = text + fl.map(f => "\n\n[" + f.name + "]\n" + f.text).join("");
-  pics = []; docs = []; renderAtt();
+  const P = pics, V = vids, D = docs, B = bins;
+  const shown = text + (P.length ? "\n" + t(12) + " × " + P.length : "") + (V.length ? "\n" + t(22) + " × " + V.length : "") + D.concat(B).map(f => "\n" + t(13) + ": " + f.name).join("");
+  const apiText = text + D.map(f => "\n\n[" + f.name + "]\n" + f.text).join("");
+  pics = []; vids = []; docs = []; bins = []; renderAtt();
   const lt = light(), tag = NAMES[cur] + (lt ? " · lite" : "");
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: shown}); save(); renderAll();
-  const body = bubble("assistant", t(10), tag);
+  const body = bubble("assistant", t(media ? 18 : 10), tag);
   try{
-    const d = await ask(cur, c.msgs, apiText, imgs);
+    const d = await ask(cur, c.msgs, apiText, P, V, B, nf);
     c.msgs.push({role: "assistant", content: d.text, model: tag}); save();
-    srv = {left: d.left, resetAt: d.resetAt};
+    setSrv(d);
     fill(body, d.text);
   }catch(e){
     c.msgs.pop(); save();
-    if(e && e.data && e.data.limit){ srv = {left: 0, resetAt: e.data.resetAt}; renderAll(); $("in").value = text; }
-    else fill(body, e && e.data && e.data.photo ? t(15) : t(11));
+    const dd = (e && e.data) || {};
+    if(dd.limit || dd.credits){
+      if(dd.left !== undefined) setSrv(dd);
+      renderAll(); $("in").value = text; pics = P; vids = V; docs = D; bins = B; renderAtt();
+      if(dd.credits) note(t(19, hhmm(dd.cReset)));
+    } else fill(body, dd.media ? t(15) : t(11));
   }
   busy = false; refresh(); $("in").focus();
 }
@@ -588,4 +589,4 @@ loadUsage();
 if(!lang) $("lov").classList.add("show");
 </script>
 </body>
-</html>
+  </html>
