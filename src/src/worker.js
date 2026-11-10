@@ -9,6 +9,7 @@ const MEDIA = {
   deep: " Делай подробный, глубокий анализ приложенных материалов.",
   heroes: " Давай обычный, не слишком подробный разбор приложенных материалов.",
 };
+const IMG_SYS = "You prepare prompts for a text-to-image generator and act as a safety filter on a public service. If the user's request asks for sexual or nude content, anything sexualizing minors, graphic gore or torture, hate symbols or harassment, instructions for crimes or weapons, or realistic depictions of real identifiable people (celebrities, politicians, private persons), reply with exactly: REFUSE. Otherwise reply with ONLY an improved, vivid English prompt (max 70 words) describing subject, style, composition, colors and lighting. Keep the user's meaning, do not add people or text that were not requested. Fictional characters, animals, landscapes, objects and art styles are fine.";
 const P = {
   g120: { p: "groq", m: "openai/gpt-oss-120b", r: "medium" },
   gq: { p: "groq", m: "qwen/qwen3.8-27b" },
@@ -41,6 +42,7 @@ async function init(db) {
   await db.batch([
     db.prepare("CREATE TABLE IF NOT EXISTS usage (id TEXT PRIMARY KEY, used REAL NOT NULL DEFAULT 0, start INTEGER NOT NULL DEFAULT 0)"),
     db.prepare("CREATE TABLE IF NOT EXISTS cred (id TEXT PRIMARY KEY, used REAL NOT NULL DEFAULT 0, start INTEGER NOT NULL DEFAULT 0)"),
+    db.prepare("CREATE TABLE IF NOT EXISTS img (id TEXT PRIMARY KEY, used REAL NOT NULL DEFAULT 0, start INTEGER NOT NULL DEFAULT 0)"),
   ]);
 }
 async function getRow(db, tbl, did) {
@@ -128,10 +130,51 @@ async function whisper(f, env) {
   }
 }
 
+const b64 = (buf) => {
+  const u = new Uint8Array(buf);
+  let s = "";
+  for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768));
+  return btoa(s);
+};
+async function draw(prompt, env) {
+  if (!env.AI) return null;
+  for (const m of ["@cf/black-forest-labs/flux-1-schnell", "@cf/bytedance/stable-diffusion-xl-lightning"]) {
+    try {
+      const o = await env.AI.run(m, m.includes("flux") ? { prompt, steps: 8 } : { prompt });
+      if (o && typeof o.image === "string") return "data:image/jpeg;base64," + o.image;
+      if (o && typeof o === "object") {
+        const buf = await new Response(o).arrayBuffer();
+        if (buf.byteLength > 1000) return "data:image/png;base64," + b64(buf);
+      }
+    } catch (e) {}
+  }
+  return null;
+}
+async function image(body, did, env) {
+  const g = await getRow(env.DB, "img", did);
+  if (g.used >= 10) return json({ imgLimit: true, resetAt: resetAt(g.start) }, 429);
+  const prompt = String(body.prompt || "").trim().slice(0, 500);
+  if (!prompt) return json({ error: "Пустой запрос" }, 400);
+  let p = null;
+  for (const id of ["g20", "c20", "gq"]) {
+    p = await run(id, IMG_SYS, [{ role: "user", content: prompt }], env);
+    if (p) break;
+  }
+  if (!p) return json({ error: "img" }, 503);
+  p = p.replace(/^["'\s]+|["'\s]+$/g, "");
+  if (/^REFUSE/i.test(p)) return json({ refuse: true });
+  const img = await draw(p.slice(0, 700), env);
+  if (!img) return json({ error: "img" }, 503);
+  g.used += 1;
+  if (!g.start) g.start = Date.now();
+  await setRow(env.DB, "img", did, g);
+  return json({ image: img, left: Math.max(0, 10 - g.used), resetAt: resetAt(g.start) });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname !== "/api/chat" && url.pathname !== "/api/usage") return json({ error: "Не найдено" }, 404);
+    if (url.pathname !== "/api/chat" && url.pathname !== "/api/usage" && url.pathname !== "/api/image") return json({ error: "Не найдено" }, 404);
     if (request.method !== "POST") return json({ error: "Нужен POST-запрос" }, 405);
     let body;
     try { body = await request.json(); } catch (e) { return json({ error: "Неверный запрос" }, 400); }
@@ -139,6 +182,7 @@ export default {
     if (!did) return json({ error: "Нет кода устройства" }, 400);
     if (!env.DB) return json({ error: "База данных не подключена" }, 500);
     await init(env.DB);
+    if (url.pathname === "/api/image") return image(body, did, env);
     const u = await getRow(env.DB, "usage", did);
     const c = await getRow(env.DB, "cred", did);
     if (url.pathname === "/api/usage") return json(view(u, c));
