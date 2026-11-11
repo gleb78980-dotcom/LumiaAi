@@ -55,15 +55,19 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .cb{margin:10px 0;background:var(--code);border-radius:12px;overflow:hidden;white-space:normal}
 .cb button{display:block;margin:6px 8px 0 auto;border:0;background:none;color:var(--mu);padding:4px}
 .cb pre{margin:0;padding:6px 14px 14px;overflow-x:auto;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre}
-.gen{position:relative;width:min(360px,100%);aspect-ratio:1/1;border-radius:22px;overflow:hidden;background:var(--sf);border:1px solid var(--bd);box-shadow:0 0 0 1px rgba(217,119,87,.28),0 10px 34px rgba(217,119,87,.2);white-space:normal}
+.gen{position:relative;width:min(360px,100%);aspect-ratio:1/1;border-radius:22px;overflow:hidden;background:var(--sf);border:1px solid var(--bd);box-shadow:0 0 0 1px rgba(217,119,87,.28),0 10px 34px rgba(217,119,87,.2);white-space:normal;margin-top:10px}
 .gen::before{content:"";position:absolute;inset:-60%;background:conic-gradient(from 0deg,transparent 0,rgba(217,119,87,.45) 20%,rgba(108,92,231,.38) 45%,transparent 65%);filter:blur(34px);animation:spin 3.2s linear infinite}
 .gen::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);background-size:220% 100%;animation:shine 1.7s linear infinite}
 .gen span{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:14px;color:var(--tx);opacity:.75;z-index:2}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shine{from{background-position:220% 0}to{background-position:-220% 0}}
-.gimg{display:block;width:min(420px,100%);border-radius:20px;animation:fi .6s ease}
+.gimg{display:block;width:min(420px,100%);border-radius:20px;animation:fi .6s ease;cursor:zoom-in;margin-top:10px}
 @keyframes fi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
-.dl{display:inline-flex;align-items:center;margin-top:8px;border:1px solid var(--bd);background:var(--card);color:var(--mu);border-radius:10px;padding:6px 10px}
+.dl{display:inline-flex;align-items:center;margin-top:8px;border:1px solid var(--bd);background:var(--card);color:var(--mu);border-radius:10px;padding:6px 10px;text-decoration:none}
+#lb{background:rgba(0,0,0,.93);z-index:40;flex-direction:column;gap:14px;padding:12px}
+#lb img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:12px}
+#lb .lba{display:flex;gap:10px}
+#lb .dl{margin:0;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#fff}
 .empty{margin:auto;text-align:center;color:var(--mu)}
 .empty svg{width:76px;height:76px;margin:0 auto 10px}
 .empty b{display:block;font:500 32px Georgia,"Times New Roman",serif;color:var(--tx);margin-bottom:4px}
@@ -151,6 +155,7 @@ textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;backgr
   </div>
 </div>
 <div id="toast" class="nc"></div>
+<div class="ov" id="lb"><img id="lbi" alt=""><div class="lba"><a id="lbd" class="dl" data-ic="down"></a><button id="lbx" class="dl" type="button" data-ic="x"></button></div></div>
 <div class="ov" id="ov"><div class="card">
   <h2 data-i="1"></h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
@@ -194,7 +199,7 @@ gauge:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l5-6"/><circle cx="12" cy=
 const ic = (n, s) => '<svg viewBox="0 0 24 24" width="' + (s || 20) + '" height="' + (s || 20) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>';
 // 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка,
 // 12 фото, 13 файл, 14 нет микрофона, 15 распознавание недоступно, 16 меню фото и видео, 17 меню файлы, 18 долгая обработка, 19 кредиты закончились, 20 заголовок кредитов, 21 цены кредитов, 22 «видео»,
-// 23 создать картинку, 24 создаю, 25 осталось картинок, 26 лимит картинок, 27 отказ, 28 ошибка картинки, 29 заметка о несохранении,
+// 23 создать картинку, 24 создаю, 25 осталось картинок, 26 лимит картинок, 27 нарисовал на свой выбор, 28 ошибка картинки, 29 заметка о несохранении,
 // 30 погружение глубже, 31 заметка про режим, 32 переключение на FLUX 1, 33 «Lumia — ИИ, он может ошибаться»
 const T = {
 ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
@@ -231,21 +236,21 @@ hi:["फ़ोटो","फ़ाइल","यह ब्राउज़र वॉ�
 th:["รูปภาพ","ไฟล์","เบราว์เซอร์นี้ไม่รองรับการพิมพ์ด้วยเสียง ใช้ไมโครโฟนบนคีย์บอร์ดแทน","การจดจำรูปภาพ วิดีโอ และไฟล์ไม่พร้อมใช้งานชั่วคราว โปรดลองอีกครั้งในภายหลัง","รูปภาพและวิดีโอ","ไฟล์ PDF เสียง 3D","การจดจำรูปภาพ วิดีโอ และไฟล์ใช้เวลานานกว่า…","เครดิตสำหรับรูปภาพ วิดีโอ และไฟล์หมดแล้ว รีเซ็ตเวลา {t} คำขอข้อความยังใช้งานได้","เครดิต (รูปภาพ วิดีโอ ไฟล์)","รูปภาพ 20 · วิดีโอ 25 · ไฟล์ 30 เครดิต วิดีโอ −1% ไฟล์ −2%","วิดีโอ"]
 };
 const Z = {
-ru:["Создать картинку","Создаю картинку…","Осталось картинок: {n} из 10. Обновится в {t}","Лимит картинок на сегодня закончился (10). Обновится в {t}","Не могу создать такую картинку. Попробуйте другое описание.","Не получилось создать картинку, попробуйте позже.","Картинка (после перезагрузки страницы не сохраняется)"],
-en:["Create image","Creating your image…","Images left: {n} of 10. Resets at {t}","Today’s image limit (10) is reached. Resets at {t}","I can’t create that image. Please try a different description.","Couldn’t create the image, please try again later.","Image (not saved after the page is reloaded)"],
-uk:["Створити картинку","Створюю картинку…","Залишилось картинок: {n} з 10. Оновиться о {t}","Ліміт картинок на сьогодні вичерпано (10). Оновиться о {t}","Не можу створити таку картинку. Спробуйте інший опис.","Не вдалося створити картинку, спробуйте пізніше.","Картинка (після перезавантаження сторінки не зберігається)"],
-es:["Crear imagen","Creando tu imagen…","Imágenes restantes: {n} de 10. Se restablece a las {t}","Se alcanzó el límite de imágenes de hoy (10). Se restablece a las {t}","No puedo crear esa imagen. Prueba con otra descripción.","No se pudo crear la imagen, inténtalo más tarde.","Imagen (no se guarda al recargar la página)"],
-de:["Bild erstellen","Dein Bild wird erstellt…","Verbleibende Bilder: {n} von 10. Zurücksetzung um {t}","Das heutige Bildlimit (10) ist erreicht. Zurücksetzung um {t}","Dieses Bild kann ich nicht erstellen. Versuch eine andere Beschreibung.","Das Bild konnte nicht erstellt werden, bitte versuche es später erneut.","Bild (wird nach dem Neuladen der Seite nicht gespeichert)"],
-fr:["Créer une image","Création de ton image…","Images restantes : {n} sur 10. Réinitialisation à {t}","La limite d’images du jour (10) est atteinte. Réinitialisation à {t}","Je ne peux pas créer cette image. Essaie une autre description.","Impossible de créer l’image, réessaie plus tard.","Image (non conservée après le rechargement de la page)"],
-it:["Crea immagine","Sto creando l’immagine…","Immagini rimaste: {n} su 10. Si azzera alle {t}","Il limite di immagini di oggi (10) è stato raggiunto. Si azzera alle {t}","Non posso creare questa immagine. Prova con un’altra descrizione.","Impossibile creare l’immagine, riprova più tardi.","Immagine (non salvata dopo il ricaricamento della pagina)"],
-pt:["Criar imagem","Criando sua imagem…","Imagens restantes: {n} de 10. Reinicia às {t}","O limite de imagens de hoje (10) foi atingido. Reinicia às {t}","Não posso criar essa imagem. Tente outra descrição.","Não foi possível criar a imagem, tente mais tarde.","Imagem (não é salva ao recarregar a página)"],
-pl:["Utwórz obraz","Tworzę obraz…","Pozostało obrazów: {n} z 10. Odnowi się o {t}","Dzisiejszy limit obrazów (10) został wyczerpany. Odnowi się o {t}","Nie mogę utworzyć takiego obrazu. Spróbuj innego opisu.","Nie udało się utworzyć obrazu, spróbuj później.","Obraz (nie jest zapisywany po odświeżeniu strony)"],
-tr:["Görsel oluştur","Görselin oluşturuluyor…","Kalan görsel: {n} / 10. {t} saatinde yenilenir","Bugünkü görsel limiti (10) doldu. {t} saatinde yenilenir","Bu görseli oluşturamam. Lütfen başka bir açıklama dene.","Görsel oluşturulamadı, lütfen daha sonra tekrar dene.","Görsel (sayfa yenilendiğinde kaydedilmez)"],
-zh:["生成图片","正在生成图片…","剩余图片：{n} / 10，将于{t}重置","今日图片额度（10张）已用完，将于{t}重置","无法生成这样的图片，请尝试其他描述。","图片生成失败，请稍后再试。","图片（刷新页面后不会保存）"],
-ja:["画像を作成","画像を作成中…","残り画像：{n} / 10。{t}にリセット","本日の画像上限（10枚）に達しました。{t}にリセットされます","その画像は作成できません。別の説明をお試しください。","画像を作成できませんでした。後でもう一度お試しください。","画像（ページを再読み込みすると保存されません）"],
-ko:["이미지 만들기","이미지를 만드는 중…","남은 이미지: {n} / 10. {t}에 초기화","오늘의 이미지 한도(10장)에 도달했습니다. {t}에 초기화됩니다","해당 이미지는 만들 수 없습니다. 다른 설명을 시도해 보세요.","이미지를 만들지 못했습니다. 나중에 다시 시도하세요.","이미지 (페이지를 새로고침하면 저장되지 않음)"],
-hi:["तस्वीर बनाएँ","तस्वीर बना रहा हूँ…","बची तस्वीरें: {n} / 10। {t} पर रीसेट","आज की तस्वीर सीमा (10) पूरी हो गई। {t} पर रीसेट होगी","मैं ऐसी तस्वीर नहीं बना सकता। कृपया कोई दूसरा विवरण आज़माएँ।","तस्वीर नहीं बन सकी, कृपया बाद में पुनः प्रयास करें।","तस्वीर (पेज रीलोड करने पर सेव नहीं रहती)"],
-th:["สร้างรูปภาพ","กำลังสร้างรูปภาพ…","รูปที่เหลือ: {n} จาก 10 รีเซ็ตเวลา {t}","ถึงขีดจำกัดรูปภาพของวันนี้ (10) แล้ว รีเซ็ตเวลา {t}","ฉันสร้างรูปภาพนี้ไม่ได้ โปรดลองคำอธิบายอื่น","สร้างรูปภาพไม่สำเร็จ โปรดลองอีกครั้งในภายหลัง","รูปภาพ (ไม่ถูกบันทึกหลังรีโหลดหน้า)"]
+ru:["Создать картинку","Создаю картинку…","Осталось картинок: {n} из 10. Обновится в {t}","Лимит картинок на сегодня закончился (10). Обновится в {t}","Такую картинку я создать не могу, поэтому нарисовал на свой выбор.","Не получилось создать картинку, попробуйте позже.","Картинка (после перезагрузки страницы не сохраняется)"],
+en:["Create image","Creating your image…","Images left: {n} of 10. Resets at {t}","Today’s image limit (10) is reached. Resets at {t}","I can’t create that image, so I drew something of my own choosing.","Couldn’t create the image, please try again later.","Image (not saved after the page is reloaded)"],
+uk:["Створити картинку","Створюю картинку…","Залишилось картинок: {n} з 10. Оновиться о {t}","Ліміт картинок на сьогодні вичерпано (10). Оновиться о {t}","Таку картинку я створити не можу, тому намалював на свій вибір.","Не вдалося створити картинку, спробуйте пізніше.","Картинка (після перезавантаження сторінки не зберігається)"],
+es:["Crear imagen","Creando tu imagen…","Imágenes restantes: {n} de 10. Se restablece a las {t}","Se alcanzó el límite de imágenes de hoy (10). Se restablece a las {t}","No puedo crear esa imagen, así que dibujé algo a mi elección.","No se pudo crear la imagen, inténtalo más tarde.","Imagen (no se guarda al recargar la página)"],
+de:["Bild erstellen","Dein Bild wird erstellt…","Verbleibende Bilder: {n} von 10. Zurücksetzung um {t}","Das heutige Bildlimit (10) ist erreicht. Zurücksetzung um {t}","Dieses Bild kann ich nicht erstellen, deshalb habe ich etwas nach eigener Wahl gezeichnet.","Das Bild konnte nicht erstellt werden, bitte versuche es später erneut.","Bild (wird nach dem Neuladen der Seite nicht gespeichert)"],
+fr:["Créer une image","Création de ton image…","Images restantes : {n} sur 10. Réinitialisation à {t}","La limite d’images du jour (10) est atteinte. Réinitialisation à {t}","Je ne peux pas créer cette image, alors j’ai dessiné quelque chose de mon choix.","Impossible de créer l’image, réessaie plus tard.","Image (non conservée après le rechargement de la page)"],
+it:["Crea immagine","Sto creando l’immagine…","Immagini rimaste: {n} su 10. Si azzera alle {t}","Il limite di immagini di oggi (10) è stato raggiunto. Si azzera alle {t}","Non posso creare questa immagine, quindi ho disegnato qualcosa di mia scelta.","Impossibile creare l’immagine, riprova più tardi.","Immagine (non salvata dopo il ricaricamento della pagina)"],
+pt:["Criar imagem","Criando sua imagem…","Imagens restantes: {n} de 10. Reinicia às {t}","O limite de imagens de hoje (10) foi atingido. Reinicia às {t}","Não posso criar essa imagem, então desenhei algo à minha escolha.","Não foi possível criar a imagem, tente mais tarde.","Imagem (não é salva ao recarregar a página)"],
+pl:["Utwórz obraz","Tworzę obraz…","Pozostało obrazów: {n} z 10. Odnowi się o {t}","Dzisiejszy limit obrazów (10) został wyczerpany. Odnowi się o {t}","Nie mogę stworzyć takiego obrazu, więc narysowałem coś według własnego wyboru.","Nie udało się utworzyć obrazu, spróbuj później.","Obraz (nie jest zapisywany po odświeżeniu strony)"],
+tr:["Görsel oluştur","Görselin oluşturuluyor…","Kalan görsel: {n} / 10. {t} saatinde yenilenir","Bugünkü görsel limiti (10) doldu. {t} saatinde yenilenir","Bu görseli oluşturamam, bu yüzden kendi seçtiğim bir şey çizdim.","Görsel oluşturulamadı, lütfen daha sonra tekrar dene.","Görsel (sayfa yenilendiğinde kaydedilmez)"],
+zh:["生成图片","正在生成图片…","剩余图片：{n} / 10，将于{t}重置","今日图片额度（10张）已用完，将于{t}重置","我无法生成这样的图片，所以画了一张自己选的。","图片生成失败，请稍后再试。","图片（刷新页面后不会保存）"],
+ja:["画像を作成","画像を作成中…","残り画像：{n} / 10。{t}にリセット","本日の画像上限（10枚）に達しました。{t}にリセットされます","その画像は作成できないため、代わりに自分で選んだ絵を描きました。","画像を作成できませんでした。後でもう一度お試しください。","画像（ページを再読み込みすると保存されません）"],
+ko:["이미지 만들기","이미지를 만드는 중…","남은 이미지: {n} / 10. {t}에 초기화","오늘의 이미지 한도(10장)에 도달했습니다. {t}에 초기화됩니다","해당 이미지는 만들 수 없어서 제가 고른 그림을 대신 그렸습니다.","이미지를 만들지 못했습니다. 나중에 다시 시도하세요.","이미지 (페이지를 새로고침하면 저장되지 않음)"],
+hi:["तस्वीर बनाएँ","तस्वीर बना रहा हूँ…","बची तस्वीरें: {n} / 10। {t} पर रीसेट","आज की तस्वीर सीमा (10) पूरी हो गई। {t} पर रीसेट होगी","मैं ऐसी तस्वीर नहीं बना सकता, इसलिए अपनी पसंद की एक तस्वीर बनाई है।","तस्वीर नहीं बन सकी, कृपया बाद में पुनः प्रयास करें।","तस्वीर (पेज रीलोड करने पर सेव नहीं रहती)"],
+th:["สร้างรูปภาพ","กำลังสร้างรูปภาพ…","รูปที่เหลือ: {n} จาก 10 รีเซ็ตเวลา {t}","ถึงขีดจำกัดรูปภาพของวันนี้ (10) แล้ว รีเซ็ตเวลา {t}","ฉันสร้างรูปภาพนี้ไม่ได้ จึงวาดภาพตามที่ฉันเลือกแทน","สร้างรูปภาพไม่สำเร็จ โปรดลองอีกครั้งในภายหลัง","รูปภาพ (ไม่ถูกบันทึกหลังรีโหลดหน้า)"]
 };
 const Z2 = {
 ru:["Погружение глубже","Погружение глубже: очень подробные ответы и поиск справочной информации. Запросы стоят в 1,5 раза дороже.","Лимит качественных картинок на сегодня (3) закончился: модель переключена на менее мощную.","Lumia — ИИ, он может ошибаться."],
@@ -401,6 +406,20 @@ LANGS.forEach(([c, n]) => {
 });
 $("lsel").onchange = e => setLang(e.target.value);
 $("blogo").innerHTML = LOGO;
+
+function openLb(src){
+  $("lbi").src = src; $("lbd").href = src;
+  $("lbd").download = "lumia-image." + (src.startsWith("data:image/png") ? "png" : "jpg");
+  $("lb").classList.add("show");
+}
+$("lb").onclick = e => { if(e.target.id === "lb" || e.target.closest("#lbx")) $("lb").classList.remove("show"); };
+function imageBlock(src, alt){
+  const wrap = document.createElement("div");
+  const im = document.createElement("img"); im.className = "gimg"; im.alt = alt; im.src = src; im.onclick = () => openLb(src);
+  const a = document.createElement("a"); a.className = "dl"; a.href = src; a.download = "lumia-image." + (src.startsWith("data:image/png") ? "png" : "jpg"); a.innerHTML = ic("down", 16);
+  wrap.append(im, document.createElement("br"), a);
+  return wrap;
+}
 
 function shrink(file){
   return new Promise(res => {
@@ -638,6 +657,22 @@ async function ask(model, msgs, apiText, P, V, B, nf, dv){
   if(!r.ok) throw {code: r.status, data: d};
   return d;
 }
+async function autoImage(prompt, host){
+  const fr = document.createElement("div"); fr.className = "gen";
+  const cap = document.createElement("span"); cap.textContent = t(24); fr.append(cap); host.append(fr);
+  $("msgs").scrollTop = $("msgs").scrollHeight;
+  let d = {};
+  try{
+    const r = await fetch("/api/image", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({did, lang, prompt, auto: true})});
+    d = await r.json().catch(() => ({}));
+  }catch(e){}
+  if(d.image){
+    fr.replaceWith(imageBlock(d.image, prompt));
+    if(d.down) host.append(notice(t(32), "alert"));
+    toast(t(25, hhmm(d.resetAt), d.left), "clock");
+  } else fr.remove();
+  $("msgs").scrollTop = $("msgs").scrollHeight;
+}
 async function genImage(text){
   imgMode = false; renderAtt();
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
@@ -659,18 +694,15 @@ async function genImage(text){
     c.msgs.push({role: "assistant", content: msg, model: "Lumia Art"}); save();
   };
   if(d.image){
-    fr.remove();
-    const im = document.createElement("img"); im.className = "gimg"; im.alt = text; im.src = d.image;
-    const a = document.createElement("a"); a.className = "dl"; a.href = d.image; a.download = "lumia-image." + (d.image.startsWith("data:image/png") ? "png" : "jpg"); a.innerHTML = ic("down", 16);
-    const wrap = document.createElement("div"); wrap.append(im, document.createElement("br"), a); el.append(wrap);
+    fr.replaceWith(imageBlock(d.image, text));
+    if(d.refuse) el.append(notice(t(27), "info"));
     if(d.down) el.append(notice(t(32), "alert"));
-    c.msgs.push({role: "assistant", content: t(29), model: "Lumia Art"}); save();
+    c.msgs.push({role: "assistant", content: d.refuse ? t(27) : t(29), model: "Lumia Art"}); save();
     toast(t(25, hhmm(d.resetAt), d.left), "clock");
   } else if(d.imgLimit){
     el.remove(); c.msgs.pop(); save(); renderAll(); $("in").value = text;
     toast(t(26, hhmm(d.resetAt)), "clock");
-  } else if(d.refuse) finish(t(27), "alert");
-  else finish(t(28), "alert");
+  } else finish(t(28), "alert");
   busy = false; refresh(); $("msgs").scrollTop = $("msgs").scrollHeight; $("in").focus();
 }
 async function send(){
@@ -693,11 +725,13 @@ async function send(){
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: shown}); save(); renderAll();
   const body = bubble("assistant", t(media ? 18 : 10), tag);
+  let ip = null;
   try{
     const d = await ask(cur, c.msgs, apiText, P, V, B, nf, dv);
     c.msgs.push({role: "assistant", content: d.text, model: tag}); save();
     setSrv(d);
     fill(body, d.text);
+    ip = d.imgPrompt;
   }catch(e){
     c.msgs.pop(); save();
     const dd = (e && e.data) || {};
@@ -708,6 +742,7 @@ async function send(){
     } else { body.textContent = ""; body.append(notice(dd.media ? t(15) : t(11), "alert")); }
   }
   busy = false; refresh(); $("in").focus();
+  if(ip && !media) autoImage(ip, body.parentElement);
 }
 $("go").onclick = send;
 $("in").addEventListener("keydown", e => { if(e.key === "Enter" && !e.shiftKey && innerWidth > 760){ e.preventDefault(); send(); } });
