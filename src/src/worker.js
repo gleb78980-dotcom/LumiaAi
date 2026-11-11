@@ -1,4 +1,4 @@
-const BASE = "Если тебя спрашивают, кто тебя создал или разработал, отвечай, что ты Lumia Ai и тебя создала команда Lumia Ai. Не называй другие компании и модели, на которых ты можешь быть основан; если спрашивают про технические детали, вежливо скажи, что не раскрываешь их, и ничего не выдумывай. Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Отвечай на языке пользователя, пиши грамотно и перед ответом проверяй, что каждое слово существует и подходит по смыслу. Код давай полным и рабочим в блоках ```. Сегодня: ";
+const BASE = "Если тебя спрашивают, кто тебя создал или разработал, отвечай, что ты Lumia Ai, а твоего разработчика зовут Глеб. Называй это имя только если об этом прямо спрашивают, сам его не упоминай. Не называй другие компании и модели, на которых ты можешь быть основан; если спрашивают про технические детали, вежливо скажи, что не раскрываешь их, и ничего не выдумывай. Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Отвечай на языке пользователя, пиши грамотно и перед ответом проверяй, что каждое слово существует и подходит по смыслу. Код давай полным и рабочим в блоках ```. Сегодня: ";
 const EXTRA = {
   deep: "Ты модель Deep 1: думай глубоко и по шагам, проверяй себя перед ответом.",
   light: "Ты модель Deep 1 в облегчённом режиме: думай по шагам, но отвечай собранно.",
@@ -9,6 +9,7 @@ const MEDIA = {
   deep: " Делай подробный, глубокий анализ приложенных материалов.",
   heroes: " Давай обычный, не слишком подробный разбор приложенных материалов.",
 };
+const DIVE = " РЕЖИМ «ПОГРУЖЕНИЕ ГЛУБЖЕ»: дай очень подробный, хорошо структурированный ответ: разбери вопрос со всех сторон, приведи нюансы, примеры, ограничения и возможные ошибки. Если ниже есть справочные выдержки из Википедии, опирайся на них и называй источник; не выдумывай факты, которых там нет.";
 const IMG_SYS = "You prepare prompts for a text-to-image generator and act as a safety filter on a public service. If the user's request asks for sexual or nude content, anything sexualizing minors, graphic gore or torture, hate symbols or harassment, instructions for crimes or weapons, or realistic depictions of real identifiable people (celebrities, politicians, private persons), reply with exactly: REFUSE. Otherwise reply with ONLY an improved, vivid English prompt (max 70 words) describing subject, style, composition, colors and lighting. Keep the user's meaning, do not add people or text that were not requested. Fictional characters, animals, landscapes, objects and art styles are fine.";
 const P = {
   g120: { p: "groq", m: "openai/gpt-oss-120b", r: "medium" },
@@ -55,14 +56,15 @@ async function setRow(db, tbl, did, r) {
   await db.prepare("INSERT INTO " + tbl + " (id, used, start) VALUES (?1, ?2, ?3) ON CONFLICT(id) DO UPDATE SET used = ?2, start = ?3").bind(did, r.used, r.start).run();
 }
 
-async function run(id, system, messages, env) {
+async function run(id, system, messages, env, dive) {
   const c = P[id];
+  const mt = dive ? 4000 : 3000;
   try {
     let text = "";
     if (c.p === "groq") {
       if (!env.GROQ_API_KEY) return null;
-      const b = { model: c.m, temperature: 0.5, max_tokens: 3000, messages: [{ role: "system", content: system }, ...messages] };
-      if (c.r) b.reasoning_effort = c.r;
+      const b = { model: c.m, temperature: 0.5, max_tokens: mt, messages: [{ role: "system", content: system }, ...messages] };
+      if (c.r) b.reasoning_effort = dive ? "high" : c.r;
       const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + env.GROQ_API_KEY },
@@ -73,7 +75,7 @@ async function run(id, system, messages, env) {
       text = (d.choices && d.choices[0] && d.choices[0].message.content) || "";
     } else {
       if (!env.AI) return null;
-      const d = await env.AI.run(c.m, { max_tokens: 3000, temperature: 0.5, messages: [{ role: "system", content: system }, ...messages] });
+      const d = await env.AI.run(c.m, { max_tokens: mt, temperature: 0.5, messages: [{ role: "system", content: system }, ...messages] });
       text = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || (d && d.response) || "";
     }
     text = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").trim();
@@ -83,7 +85,7 @@ async function run(id, system, messages, env) {
   }
 }
 
-async function gemini(deep, system, messages, imgs, vids, bins, env) {
+async function gemini(deepish, system, messages, imgs, vids, bins, env) {
   if (!env.GEMINI_API_KEY) return null;
   const contents = messages.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
   while (contents.length > 1 && contents[0].role === "model") contents.shift();
@@ -94,7 +96,7 @@ async function gemini(deep, system, messages, imgs, vids, bins, env) {
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system }] },
     contents,
-    generationConfig: { temperature: 0.5, maxOutputTokens: deep ? 4096 : 3000 },
+    generationConfig: { temperature: 0.5, maxOutputTokens: deepish ? 4096 : 3000 },
   });
   for (const m of GEMS) {
     try {
@@ -130,21 +132,56 @@ async function whisper(f, env) {
   }
 }
 
+async function wiki(q, lang) {
+  for (const l of [lang, "en"]) {
+    try {
+      const u = "https://" + l + ".wikipedia.org/w/api.php?action=query&generator=search&gsrlimit=3&prop=extracts&exintro=1&explaintext=1&exchars=650&format=json&redirects=1&gsrsearch=" + encodeURIComponent(q.slice(0, 120));
+      const r = await fetch(u, { headers: { "User-Agent": "LumiaAi/1.0" } });
+      if (!r.ok) continue;
+      const d = await r.json();
+      const pages = d.query && d.query.pages ? Object.values(d.query.pages) : [];
+      const t = pages.sort((a, b) => (a.index || 0) - (b.index || 0))
+        .map((p) => "[" + p.title + "] " + String(p.extract || "").replace(/\s+/g, " ").trim())
+        .filter((x) => x.length > 20).join("\n");
+      if (t) return t.slice(0, 2000);
+    } catch (e) {}
+  }
+  return "";
+}
+
 const b64 = (buf) => {
   const u = new Uint8Array(buf);
   let s = "";
   for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768));
   return btoa(s);
 };
-async function draw(prompt, env) {
+async function flux2(prompt, env) {
+  for (const m of ["@cf/black-forest-labs/flux-2-klein-4b", "@cf/black-forest-labs/flux-2-dev", "@cf/black-forest-labs/flux-2-klein-9b"]) {
+    try {
+      const form = new FormData();
+      form.append("prompt", prompt);
+      form.append("width", "1024");
+      form.append("height", "1024");
+      const req = new Request("http://x", { method: "POST", body: form });
+      const o = await env.AI.run(m, { multipart: { body: req.body, contentType: req.headers.get("content-type") } });
+      if (o && typeof o.image === "string") return "data:image/jpeg;base64," + o.image;
+    } catch (e) {}
+  }
+  return null;
+}
+async function draw(prompt, hq, env) {
   if (!env.AI) return null;
+  if (hq) {
+    const a = await flux2(prompt, env);
+    if (a) return { img: a, down: false };
+  }
   for (const m of ["@cf/black-forest-labs/flux-1-schnell", "@cf/bytedance/stable-diffusion-xl-lightning"]) {
     try {
       const o = await env.AI.run(m, m.includes("flux") ? { prompt, steps: 8 } : { prompt });
-      if (o && typeof o.image === "string") return "data:image/jpeg;base64," + o.image;
+      if (o && typeof o.image === "string") return { img: "data:image/jpeg;base64," + o.image, down: true };
       if (o && typeof o === "object") {
         const buf = await new Response(o).arrayBuffer();
-        if (buf.byteLength > 1000) return "data:image/png;base64," + b64(buf);
+        if (buf.byteLength > 1000) return { img: "data:image/png;base64," + b64(buf), down: true };
       }
     } catch (e) {}
   }
@@ -157,18 +194,18 @@ async function image(body, did, env) {
   if (!prompt) return json({ error: "Пустой запрос" }, 400);
   let p = null;
   for (const id of ["g20", "c20", "gq"]) {
-    p = await run(id, IMG_SYS, [{ role: "user", content: prompt }], env);
+    p = await run(id, IMG_SYS, [{ role: "user", content: prompt }], env, false);
     if (p) break;
   }
   if (!p) return json({ error: "img" }, 503);
   p = p.replace(/^["'\s]+|["'\s]+$/g, "");
   if (/^REFUSE/i.test(p)) return json({ refuse: true });
-  const img = await draw(p.slice(0, 700), env);
-  if (!img) return json({ error: "img" }, 503);
+  const r = await draw(p.slice(0, 700), g.used < 3, env);
+  if (!r) return json({ error: "img" }, 503);
   g.used += 1;
   if (!g.start) g.start = Date.now();
   await setRow(env.DB, "img", did, g);
-  return json({ image: img, left: Math.max(0, 10 - g.used), resetAt: resetAt(g.start) });
+  return json({ image: r.img, down: r.down, left: Math.max(0, 10 - g.used), resetAt: resetAt(g.start) });
 }
 
 export default {
@@ -188,6 +225,7 @@ export default {
     if (url.pathname === "/api/usage") return json(view(u, c));
 
     if (100 - u.used <= 0) return json({ limit: true, error: "Лимит закончился", ...view(u, c) }, 429);
+    const dive = body.dive === true;
     const imgs = (Array.isArray(body.images) ? body.images : [])
       .filter((x) => typeof x === "string" && x.startsWith("data:image/") && x.length < 900000).slice(0, 5);
     const vids = (Array.isArray(body.videos) ? body.videos : [])
@@ -200,22 +238,28 @@ export default {
 
     const isDeep = body.model === "deep";
     const light = 100 - u.used < 30;
-    const cost = (isDeep ? (light ? 3 : 6) : (light ? 2 : 4)) + vids.length + nfiles * 2;
+    const base = isDeep ? (light ? 3 : 6) : (light ? 2 : 4);
+    const cost = base * (dive ? 1.5 : 1) + vids.length + nfiles * 2;
     const media = imgs.length + vids.length + nfiles > 0;
-    const extra = (isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes) + (media ? PHOTO + (isDeep ? MEDIA.deep : MEDIA.heroes) : "");
-    const hist = (Array.isArray(body.messages) ? body.messages.slice(-6) : [])
+    const extra = (isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes) + (media ? PHOTO + (isDeep ? MEDIA.deep : MEDIA.heroes) : "") + (dive ? DIVE : "");
+    const hist = (Array.isArray(body.messages) ? body.messages.slice(dive ? -4 : -6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 16000 : 1200) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Пустой вопрос" }, 400);
-    const L = LANGS[body.lang] || "Russian";
+    const lg = LANGS[body.lang] ? body.lang : "ru";
+    const L = LANGS[lg];
     let system = BASE + new Date().toISOString().slice(0, 10) + ". " + extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
     if (typeof body.memory === "string" && body.memory) {
       system += "\nО чём пользователь говорил с тобой в прошлых чатах (только для контекста, упоминай при необходимости):\n" + body.memory.slice(0, 600);
     }
+    if (dive && !media) {
+      const w = await wiki(messages[messages.length - 1].content, lg);
+      if (w) system += "\nСправочные выдержки из Википедии:\n" + w;
+    }
 
     let text = null, viaGem = false;
     if (media) {
-      text = await gemini(isDeep, system, messages, imgs, vids, bins, env);
+      text = await gemini(isDeep || dive, system, messages, imgs, vids, bins, env);
       viaGem = !!text;
     }
     if (!text) {
@@ -235,7 +279,7 @@ export default {
       if (fb.length) last.content = [{ type: "text", text: last.content }, ...fb.map((x) => ({ type: "image_url", image_url: { url: x } }))];
       const chain = fb.length ? CHAINS.photo : CHAINS[(isDeep ? "deep" : "heroes") + (light ? "Lite" : "")];
       for (const id of chain) {
-        text = await run(id, system, msgs2, env);
+        text = await run(id, system, msgs2, env, dive);
         if (text) break;
       }
     }
