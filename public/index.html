@@ -34,10 +34,18 @@ header{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-
 #mh{padding:0 14px 6px;font-size:13px;color:var(--mu)}
 #chip{margin-left:auto;border:1px solid var(--bd);background:var(--card);border-radius:14px;padding:5px 12px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
 #chip i{width:10px;height:10px;border-radius:50%;background:#22c55e}
-#lite{display:none;margin:0 12px;padding:8px 12px;border-radius:12px;background:var(--sf);font-size:14px;color:var(--mu);align-items:center;gap:8px}
+.nc{display:flex;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.45;color:var(--tx);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.nc .ni{flex:none;width:26px;height:26px;border-radius:50%;background:rgba(217,119,87,.14);color:var(--ac);display:flex;align-items:center;justify-content:center}
+.nc .nt{flex:1;padding-top:2px;white-space:normal}
+.a .nc{margin-top:8px}
+#lite{display:none;margin:0 12px 6px}
 #lite.show{display:flex}
-#lite span{flex:1}
+#lite .nt{color:var(--mu)}
 #lite button{border:0;background:none;color:var(--mu);padding:2px}
+#limit{display:none;margin-bottom:8px}
+#limit.show{display:flex}
+#toast{position:fixed;left:50%;bottom:calc(120px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);width:min(440px,92%);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:30}
+#toast.show{opacity:1;transform:translate(-50%,0)}
 #msgs{flex:1;overflow-y:auto;padding:12px;width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
 .m{overflow-wrap:anywhere;white-space:pre-wrap}
 .u{align-self:flex-end;max-width:85%;background:var(--ub);padding:8px 16px;border-radius:18px}
@@ -56,17 +64,14 @@ code{background:var(--code);padding:1px 6px;border-radius:6px;font:13px ui-monos
 .gimg{display:block;width:min(420px,100%);border-radius:20px;animation:fi .6s ease}
 @keyframes fi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
 .dl{display:inline-flex;align-items:center;margin-top:8px;border:1px solid var(--bd);background:var(--card);color:var(--mu);border-radius:10px;padding:6px 10px}
-#toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:30}
-#toast.show{opacity:1;transform:translate(-50%,0)}
 .empty{margin:auto;text-align:center;color:var(--mu)}
 .empty svg{width:76px;height:76px;margin:0 auto 10px}
 .empty b{display:block;font:500 32px Georgia,"Times New Roman",serif;color:var(--tx);margin-bottom:4px}
-.foot{position:relative;width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px))}
-#limit{display:none;margin-bottom:8px;padding:9px 14px;border-radius:12px;background:var(--sf);font-size:14px}
-#limit.show{display:block}
+.foot{position:relative;width:100%;max-width:760px;margin:0 auto;padding:6px 12px calc(10px + env(safe-area-inset-bottom,0px))}
+.disc{text-align:center;font-size:12px;color:var(--mu);margin-top:8px}
 #att{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
 #att:empty{display:none}
-.ch{position:relative;background:var(--sf);border-radius:12px;font-size:13px;padding:6px 28px 6px 10px;max-width:190px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ch{position:relative;background:var(--sf);border-radius:12px;font-size:13px;padding:6px 28px 6px 10px;max-width:220px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ch.p{padding:0;width:56px;height:56px}
 .ch img{width:56px;height:56px;object-fit:cover;display:block;border-radius:12px}
 .ch.v::after{content:"";position:absolute;left:50%;top:50%;margin:-8px 0 0 -5px;border-left:14px solid rgba(255,255,255,.92);border-top:8px solid transparent;border-bottom:8px solid transparent}
@@ -80,7 +85,7 @@ textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;backgr
 #mic.on{color:#fff;background:#dc2626}
 #go{border:0;background:var(--ac);color:#fff;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}
 #go:disabled{opacity:.35}
-#pm{display:none;position:absolute;left:12px;bottom:calc(112px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:5}
+#pm{display:none;position:absolute;left:12px;bottom:calc(122px + env(safe-area-inset-bottom,0px));background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:5}
 #pm button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;padding:10px 16px;border-radius:10px;white-space:nowrap}
 #pm button:hover{background:var(--sf)}
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;align-items:center;justify-content:center;padding:16px}
@@ -120,15 +125,16 @@ textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;backgr
     <button id="chip" type="button"><i></i><span>100%</span></button>
   </header>
   <div id="mh"></div>
-  <div id="lite"><span data-i="4"></span><button id="lx" type="button" data-ic="x" data-s="16"></button></div>
+  <div id="lite" class="nc"><span class="ni" data-ic="info" data-s="15"></span><span class="nt" data-i="4"></span><button id="lx" type="button" data-ic="x" data-s="16"></button></div>
   <div id="msgs"></div>
   <div class="foot">
-    <div id="limit"></div>
+    <div id="limit" class="nc"></div>
     <div id="att"></div>
     <div id="pm">
       <button id="pp" type="button"></button>
       <button id="pf" type="button"></button>
       <button id="pi" type="button"></button>
+      <button id="pd" type="button"></button>
     </div>
     <div class="bar">
       <textarea id="in" rows="1"></textarea>
@@ -139,15 +145,16 @@ textarea{width:100%;resize:none;max-height:150px;min-height:30px;border:0;backgr
         <button id="go" type="button" data-ic="up"></button>
       </div>
     </div>
+    <div class="disc" data-i="33"></div>
     <input type="file" id="fi" accept="image/*,video/*" multiple hidden>
     <input type="file" id="ff" multiple hidden accept=".txt,.md,.csv,.json,.html,.css,.js,.ts,.py,.java,.c,.cpp,.cs,.go,.rs,.php,.rb,.sql,.xml,.yml,.yaml,.log,.ini,.sh,.pdf,.mp3,.wav,.m4a,.aac,.ogg,.flac,.obj,.stl,.glb,.gltf,.ply,text/*,audio/*,application/pdf">
   </div>
 </div>
-<div id="toast"></div>
+<div id="toast" class="nc"></div>
 <div class="ov" id="ov"><div class="card">
   <h2 data-i="1"></h2>
   <div class="row"><div class="tg"><b id="pct">100%</b><span class="small" id="rst"></span></div><div class="pb"><i id="bar"></i></div>
-    <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% (2%) · Deep 1 — 6% (3%)</div></div>
+    <div class="small" style="margin-top:6px"><span data-i="6"></span> · Heroes 1 — 4% (2%) · Deep 1 — 6% (3%) · <span data-i="30"></span> ×1.5</div></div>
   <div class="row"><div class="tg"><b id="cpct">600 / 600</b><span class="small" id="crst"></span></div><div class="pb"><i id="cbar"></i></div>
     <div class="small" style="margin-top:6px"><span data-i="20"></span><br><span data-i="21"></span></div></div>
   <div class="row tg"><span data-i="8"></span><input type="checkbox" id="mem"></div>
@@ -178,12 +185,17 @@ copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 
 check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
 pen:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
 spark:'<path d="M11 3l1.9 5.4L18 10l-5.1 1.6L11 17l-1.9-5.4L4 10l5.1-1.6z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
-down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>'
+down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+alert:'<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/>',
+gauge:'<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l5-6"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/><path d="M6.3 12.2l1 .6M12 8.2v1.2M17.7 12.2l-1 .6"/>'
 };
 const ic = (n, s) => '<svg viewBox="0 0 24 24" width="' + (s || 20) + '" height="' + (s || 20) + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + IC[n] + '</svg>';
 // 0 новый чат, 1 настройки, 2 подсказка, 3 приветствие, 4 облегчённый, 5 лимит, 6 осталось, 7 сброс, 8 память, 9 готово, 10 думаю, 11 ошибка,
 // 12 фото, 13 файл, 14 нет микрофона, 15 распознавание недоступно, 16 меню фото и видео, 17 меню файлы, 18 долгая обработка, 19 кредиты закончились, 20 заголовок кредитов, 21 цены кредитов, 22 «видео»,
-// 23 создать картинку, 24 создаю, 25 осталось картинок, 26 лимит картинок, 27 отказ, 28 ошибка картинки, 29 заметка о несохранении
+// 23 создать картинку, 24 создаю, 25 осталось картинок, 26 лимит картинок, 27 отказ, 28 ошибка картинки, 29 заметка о несохранении,
+// 30 погружение глубже, 31 заметка про режим, 32 переключение на FLUX 1, 33 «Lumia — ИИ, он может ошибаться»
 const T = {
 ru:["Новый чат","Настройки","Напиши, что нужно…","Чем могу помочь?","Меньше 30%: облегчённый режим, запросы дешевле (Deep 3%, Heroes 2%)","Лимит закончился. Обновится в {t}","Осталось сегодня","Обновится в {t}","Помнить прошлые чаты","Готово","Думаю…","Не получилось ответить. Попробуй ещё раз."],
 en:["New chat","Settings","Type here…","How can I help?","Under 30% left: lighter mode, cheaper requests (Deep 3%, Heroes 2%)","Limit reached. Resets at {t}","Left today","Resets at {t}","Remember past chats","Done","Thinking…","Something went wrong. Try again."],
@@ -235,7 +247,24 @@ ko:["이미지 만들기","이미지를 만드는 중…","남은 이미지: {n}
 hi:["तस्वीर बनाएँ","तस्वीर बना रहा हूँ…","बची तस्वीरें: {n} / 10। {t} पर रीसेट","आज की तस्वीर सीमा (10) पूरी हो गई। {t} पर रीसेट होगी","मैं ऐसी तस्वीर नहीं बना सकता। कृपया कोई दूसरा विवरण आज़माएँ।","तस्वीर नहीं बन सकी, कृपया बाद में पुनः प्रयास करें।","तस्वीर (पेज रीलोड करने पर सेव नहीं रहती)"],
 th:["สร้างรูปภาพ","กำลังสร้างรูปภาพ…","รูปที่เหลือ: {n} จาก 10 รีเซ็ตเวลา {t}","ถึงขีดจำกัดรูปภาพของวันนี้ (10) แล้ว รีเซ็ตเวลา {t}","ฉันสร้างรูปภาพนี้ไม่ได้ โปรดลองคำอธิบายอื่น","สร้างรูปภาพไม่สำเร็จ โปรดลองอีกครั้งในภายหลัง","รูปภาพ (ไม่ถูกบันทึกหลังรีโหลดหน้า)"]
 };
-for (const c in Y) T[c].push(...Y[c], ...Z[c]);
+const Z2 = {
+ru:["Погружение глубже","Погружение глубже: очень подробные ответы и поиск справочной информации. Запросы стоят в 1,5 раза дороже.","Лимит качественных картинок на сегодня (3) закончился: модель переключена на менее мощную.","Lumia — ИИ, он может ошибаться."],
+en:["Deep dive","Deep dive: very detailed answers and extra reference lookup. Requests cost 1.5× more.","Today’s limit of high-quality images (3) is reached: the model was switched to a less powerful one.","Lumia is an AI and can make mistakes."],
+uk:["Занурення глибше","Занурення глибше: дуже детальні відповіді та пошук довідкової інформації. Запити коштують у 1,5 раза дорожче.","Ліміт якісних картинок на сьогодні (3) вичерпано: модель переключено на менш потужну.","Lumia — ШІ, він може помилятися."],
+es:["Inmersión profunda","Inmersión profunda: respuestas muy detalladas y búsqueda de información de referencia. Las consultas cuestan 1,5 veces más.","Se alcanzó el límite de imágenes de alta calidad de hoy (3): se cambió a un modelo menos potente.","Lumia es una IA y puede cometer errores."],
+de:["Tiefer eintauchen","Tiefer eintauchen: sehr ausführliche Antworten und zusätzliche Recherche. Anfragen kosten 1,5-mal mehr.","Das heutige Limit für hochwertige Bilder (3) ist erreicht: auf ein weniger leistungsstarkes Modell umgestellt.","Lumia ist eine KI und kann Fehler machen."],
+fr:["Plongée approfondie","Plongée approfondie : réponses très détaillées et recherche d’informations de référence. Les demandes coûtent 1,5 fois plus.","La limite d’images haute qualité du jour (3) est atteinte : modèle remplacé par un modèle moins puissant.","Lumia est une IA et peut faire des erreurs."],
+it:["Approfondimento","Approfondimento: risposte molto dettagliate e ricerca di informazioni di riferimento. Le richieste costano 1,5 volte di più.","Il limite di immagini di alta qualità di oggi (3) è stato raggiunto: modello sostituito con uno meno potente.","Lumia è un’IA e può commettere errori."],
+pt:["Mergulho profundo","Mergulho profundo: respostas muito detalhadas e busca de informações de referência. Os pedidos custam 1,5 vez mais.","O limite de imagens de alta qualidade de hoje (3) foi atingido: o modelo foi trocado por um menos potente.","A Lumia é uma IA e pode cometer erros."],
+pl:["Głębsze zanurzenie","Głębsze zanurzenie: bardzo szczegółowe odpowiedzi i wyszukiwanie informacji. Zapytania kosztują 1,5 raza więcej.","Dzisiejszy limit obrazów wysokiej jakości (3) został wyczerpany: przełączono na mniej wydajny model.","Lumia to AI i może popełniać błędy."],
+tr:["Derin dalış","Derin dalış: çok ayrıntılı yanıtlar ve ek bilgi araştırması. İstekler 1,5 kat daha pahalı.","Bugünkü yüksek kaliteli görsel limiti (3) doldu: daha az güçlü bir modele geçildi.","Lumia bir yapay zekâdır ve hata yapabilir."],
+zh:["深度探索","深度探索：回答非常详细，并查找参考资料。请求消耗为原来的1.5倍。","今日高质量图片额度（3张）已用完：已切换到性能较弱的模型。","Lumia 是 AI，可能会出错。"],
+ja:["深掘りモード","深掘りモード：非常に詳しい回答と参考情報の検索。リクエストの消費は1.5倍になります。","本日の高品質画像の上限（3枚）に達しました。より性能の低いモデルに切り替えました。","Lumia はAIであり、間違えることがあります。"],
+ko:["깊이 파고들기","깊이 파고들기: 매우 자세한 답변과 참고 정보 검색. 요청 비용이 1.5배가 됩니다.","오늘의 고품질 이미지 한도(3장)에 도달했습니다. 성능이 낮은 모델로 전환되었습니다.","Lumia는 AI이며 실수할 수 있습니다."],
+hi:["गहराई से जाँच","गहराई से जाँच: बहुत विस्तृत उत्तर और संदर्भ जानकारी की खोज। अनुरोध 1.5 गुना महँगे होते हैं।","आज की उच्च गुणवत्ता वाली तस्वीरों की सीमा (3) पूरी हो गई: कम शक्तिशाली मॉडल पर स्विच किया गया।","Lumia एक AI है और गलतियाँ कर सकता है।"],
+th:["เจาะลึก","เจาะลึก: คำตอบละเอียดมากและค้นหาข้อมูลอ้างอิงเพิ่ม คำขอแพงขึ้น 1.5 เท่า","ถึงขีดจำกัดรูปภาพคุณภาพสูงของวันนี้ (3) แล้ว สลับไปใช้โมเดลที่ทรงพลังน้อยกว่า","Lumia เป็น AI และอาจทำผิดพลาดได้"]
+};
+for (const c in Y) T[c].push(...Y[c], ...Z[c], ...Z2[c]);
 const H = {
 ru:["Heroes 1: для быстрых задач","Deep 1: для более сложных задач"],
 en:["Heroes 1: for quick tasks","Deep 1: for more complex tasks"],
@@ -253,10 +282,29 @@ ko:["Heroes 1: 빠른 작업용","Deep 1: 더 복잡한 작업용"],
 hi:["Heroes 1: तेज़ कामों के लिए","Deep 1: अधिक जटिल कामों के लिए"],
 th:["Heroes 1: สำหรับงานเร็ว","Deep 1: สำหรับงานที่ซับซ้อนกว่า"]
 };
+const IMG_RE = new RegExp([
+"нарису[йю]",
+"(созда[йт]|сдела[йт]|сгенерир\\S*)\\s+(мне\\s+)?(\\S+\\s+){0,2}(картинк|изображени|фото|рисун|иллюстрац|аватар|постер|обои|логотип)",
+"\\b(draw|paint|sketch)\\s+(me\\s+)?(an?|the)\\s",
+"\\b(generate|create|make|produce|design)\\s+(me\\s+)?(an?\\s+)?(\\S+\\s+){0,2}(image|picture|photo|illustration|artwork|logo|poster|wallpaper|avatar)",
+"(намалюй|створи|згенеруй|зроби)\\s+(мені\\s+)?(\\S+\\s+){0,2}(зображення|картинк|фото|малюнок|ілюстраці|логотип|постер)",
+"(dibuja|genera|crea|haz)\\s+(me\\s+)?(una?\\s+)?(\\S+\\s+){0,2}(imagen|foto|dibujo|ilustraci)",
+"(zeichne|male|erstelle|generiere)\\s+(mir\\s+)?(ein\\s+)?(\\S+\\s+){0,2}(bild|foto|zeichnung|illustration)",
+"(dessine|génère|crée|fais)\\s+(moi\\s+)?(une?\\s+)?(\\S+\\s+){0,2}(image|photo|dessin|illustration)",
+"(disegna|genera|crea|fai)\\s+(mi\\s+)?(una?\\s+)?(\\S+\\s+){0,2}(immagine|foto|disegno|illustrazione)",
+"(desenhe|gere|crie|faça)\\s+(me\\s+)?(uma?\\s+)?(\\S+\\s+){0,2}(imagem|foto|desenho|ilustra)",
+"(narysuj|wygeneruj|stwórz|zrób)\\s+(mi\\s+)?(\\S+\\s+){0,2}(obraz|zdjęci|rysunek|ilustrac)",
+"(görsel|resim|fotoğraf|çizim)\\s+(oluştur|üret|yap|çiz)|çiz\\s+bana",
+"(画|绘制|生成|创建).{0,6}(图|图片|图像|插画|海报)",
+"(画像|イラスト|写真|絵).{0,8}(作って|生成|描いて|作成)|描いて",
+"(그려\\s?줘|그려\\s?주세요)|(이미지|그림|사진).{0,8}(만들어|생성)",
+"(तस्वीर|चित्र|फोटो|इमेज).{0,10}(बना)",
+"(วาด|สร้าง).{0,8}(รูป|ภาพ)"
+].join("|"), "iu");
 const LOGO = '<svg viewBox="0 0 64 64"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19c37d"/><stop offset="1" stop-color="#6c5ce7"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#lg1)"/><path d="M32 11c1.7 10.5 8.5 17.3 19 19-10.5 1.7-17.3 8.5-19 19-1.7-10.5-8.5-17.3-19-19 10.5-1.7 17.3-8.5 19-19z" fill="#fff"/><circle cx="48" cy="16" r="3" fill="#fff" opacity=".8"/></svg>';
 const $ = id => document.getElementById(id);
 document.querySelectorAll("[data-ic]").forEach(e => { e.innerHTML = ic(e.dataset.ic, +e.dataset.s || 20); });
-let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false, imgMode = false;
+let chats = [], cid = null, cur = "deep", busy = false, memOn = true, liteHidden = false, imgMode = false, dive = false, noteUntil = 0;
 let srv = {left: 100, resetAt: 0, cLeft: 600, cReset: 0}, did = "", lang = "";
 let pics = [], vids = [], docs = [], bins = [], rec = null;
 try { chats = JSON.parse(localStorage.getItem(KEY) || "[]"); cur = localStorage.getItem(MK) || "deep"; memOn = localStorage.getItem(PK) !== "0"; did = localStorage.getItem("lumia_did") || ""; lang = localStorage.getItem(LK) || ""; } catch (e) {}
@@ -271,24 +319,32 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(chats.slice(
 const chat = () => chats.find(c => c.id === cid);
 const t = (i, v, n) => { let s = (T[lang] || T.en)[i]; if(v !== undefined) s = s.replace("{t}", v); if(n !== undefined) s = s.replace("{n}", n); return s; };
 const setSrv = d => { srv = {left: d.left, resetAt: d.resetAt, cLeft: d.cLeft, cReset: d.cReset}; };
+const fmt = n => String(Math.round(n * 10) / 10);
 
 const left = () => srv.left;
 const light = () => srv.left > 0 && srv.left < 30;
 const hhmm = x => { const d = new Date(x), l = lang || "ru"; return d.toLocaleTimeString(l, {hour: "2-digit", minute: "2-digit"}) + ", " + d.toLocaleDateString(l, {day: "numeric", month: "long"}); };
 const color = l => l >= 70 ? "#22c55e" : l >= 30 ? "#eab308" : "#ef4444";
-function note(s){ $("limit").textContent = s; $("limit").classList.add("show"); setTimeout(refresh, 4000); }
+function setNote(el, text, icon){
+  el.textContent = "";
+  const i = document.createElement("span"); i.className = "ni"; i.innerHTML = ic(icon || "info", 15);
+  const s = document.createElement("span"); s.className = "nt"; s.textContent = text;
+  el.append(i, s);
+}
+function notice(text, icon){ const d = document.createElement("div"); d.className = "nc"; setNote(d, text, icon); return d; }
+function note(s, icon){ noteUntil = Date.now() + 4500; setNote($("limit"), s, icon || "info"); $("limit").classList.add("show"); setTimeout(refresh, 4600); }
 let tt = 0;
-function toast(s){ const el = $("toast"); el.textContent = s; el.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 6500); }
+function toast(s, icon){ const el = $("toast"); setNote(el, s, icon || "info"); el.classList.add("show"); clearTimeout(tt); tt = setTimeout(() => el.classList.remove("show"), 7000); }
 
 function refresh(){
   const l = left(), col = color(l), cl = srv.cLeft, cc = color(cl / 6);
+  const out = l <= 0, showNote = Date.now() < noteUntil;
   $("mh").textContent = (H[lang] || H.en)[cur === "deep" ? 1 : 0];
   $("lite").classList.toggle("show", light() && !liteHidden);
-  const out = l <= 0;
-  $("limit").classList.toggle("show", out);
-  if(out) $("limit").textContent = t(5, hhmm(srv.resetAt));
-  $("go").disabled = busy || (out && !imgMode);
-  $("pct").textContent = l + "%";
+  if(out && !showNote) setNote($("limit"), t(5, hhmm(srv.resetAt)), "clock");
+  $("limit").classList.toggle("show", out || showNote);
+  $("go").disabled = busy;
+  $("pct").textContent = fmt(l) + "%";
   $("pct").style.color = col;
   $("bar").style.width = l + "%";
   $("bar").style.background = col;
@@ -297,7 +353,7 @@ function refresh(){
   $("cbar").style.width = cl / 6 + "%";
   $("cbar").style.background = cc;
   $("chip").firstChild.style.background = col;
-  $("chip").lastChild.textContent = l + "%";
+  $("chip").lastChild.textContent = fmt(l) + "%";
   $("rst").textContent = srv.resetAt ? t(7, hhmm(srv.resetAt)) : "";
   $("crst").textContent = srv.cReset ? t(7, hhmm(srv.cReset)) : "";
 }
@@ -308,6 +364,7 @@ function ui(){
   $("pp").innerHTML = ic("image") + "<span>" + t(16) + "</span>";
   $("pf").innerHTML = ic("clip") + "<span>" + t(17) + "</span>";
   $("pi").innerHTML = ic("spark") + "<span>" + t(23) + "</span>";
+  $("pd").innerHTML = ic("gauge") + "<span>" + t(30) + "</span>";
   refresh(); renderMsgs(); renderAtt();
 }
 function setLang(c){
@@ -423,26 +480,22 @@ async function info3d(f){
 const rawSize = () => vids.reduce((a, v) => a + v.size, 0) + bins.reduce((a, b) => a + b.size, 0);
 function renderAtt(){
   const a = $("att"); a.textContent = "";
-  const add = (d, arr, i) => {
+  const add = (d, fn) => {
     const x = document.createElement("button"); x.type = "button"; x.innerHTML = ic("x", 10);
-    x.onclick = () => { arr.splice(i, 1); renderAtt(); };
-    d.append(x); a.append(d);
+    x.onclick = fn; d.append(x); a.append(d);
   };
-  if(imgMode){
-    const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(t(23)));
-    const x = document.createElement("button"); x.type = "button"; x.innerHTML = ic("x", 10);
-    x.onclick = () => { imgMode = false; renderAtt(); refresh(); };
-    d.append(x); a.append(d);
-  }
-  pics.forEach((u, i) => { const d = document.createElement("div"); d.className = "ch p"; const im = document.createElement("img"); im.src = u; d.append(im); add(d, pics, i); });
-  vids.forEach((v, i) => { const d = document.createElement("div"); d.className = "ch p v"; if(v.frames[0]){ const im = document.createElement("img"); im.src = v.frames[0]; d.append(im); } add(d, vids, i); });
-  docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(f.name)); add(d, docs, i); });
-  bins.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.append(document.createTextNode(f.name)); add(d, bins, i); });
+  if(imgMode){ const d = document.createElement("div"); d.className = "ch"; d.textContent = t(23); add(d, () => { imgMode = false; renderAtt(); refresh(); }); }
+  if(dive){ const d = document.createElement("div"); d.className = "ch"; d.textContent = t(30); add(d, () => { dive = false; renderAtt(); }); }
+  pics.forEach((u, i) => { const d = document.createElement("div"); d.className = "ch p"; const im = document.createElement("img"); im.src = u; d.append(im); add(d, () => { pics.splice(i, 1); renderAtt(); }); });
+  vids.forEach((v, i) => { const d = document.createElement("div"); d.className = "ch p v"; if(v.frames[0]){ const im = document.createElement("img"); im.src = v.frames[0]; d.append(im); } add(d, () => { vids.splice(i, 1); renderAtt(); }); });
+  docs.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.textContent = f.name; add(d, () => { docs.splice(i, 1); renderAtt(); }); });
+  bins.forEach((f, i) => { const d = document.createElement("div"); d.className = "ch"; d.textContent = f.name; add(d, () => { bins.splice(i, 1); renderAtt(); }); });
 }
 $("plus").onclick = () => { $("pm").style.display = $("pm").style.display === "block" ? "none" : "block"; };
 $("pp").onclick = () => { $("pm").style.display = "none"; $("fi").click(); };
 $("pf").onclick = () => { $("pm").style.display = "none"; $("ff").click(); };
 $("pi").onclick = () => { $("pm").style.display = "none"; imgMode = true; renderAtt(); refresh(); $("in").focus(); };
+$("pd").onclick = () => { $("pm").style.display = "none"; dive = !dive; renderAtt(); if(dive) toast(t(31), "info"); $("in").focus(); };
 document.addEventListener("click", e => { if(!e.target.closest("#pm,#plus")) $("pm").style.display = "none"; });
 $("fi").onchange = async e => {
   for(const f of e.target.files){
@@ -450,7 +503,6 @@ $("fi").onchange = async e => {
       if(vids.length >= 3){ note(t(22) + " ≤ 3"); continue; }
       if(f.size > 5e6){ note(t(22) + " ≤ 5 MB"); continue; }
       if(rawSize() + f.size > 12e6){ note("≤ 12 MB"); continue; }
-      note("…");
       const data = await b64(f); if(!data) continue;
       vids.push({name: f.name, mime: f.type || "video/mp4", data, size: f.size, frames: await frames(f, 2)});
     } else {
@@ -471,20 +523,19 @@ $("ff").onchange = async e => {
     if(D3.test(f.name)){
       if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
       let s = null; try { s = await info3d(f); } catch (x) {}
-      if(!s){ note(hint); continue; }
+      if(!s){ note(hint, "alert"); continue; }
       docs.push({name: f.name, text: s.slice(0, 4000)}); renderAtt(); continue;
     }
     if(AUD.test(f.name) || ext === "pdf"){
       if(f.size > 10e6){ note(t(13) + " ≤ 10 MB"); continue; }
       if(rawSize() + f.size > 12e6){ note("≤ 12 MB"); continue; }
-      note("…");
       const data = await b64(f); if(!data) continue;
       bins.push({name: f.name, mime: ext === "pdf" ? "application/pdf" : AM[ext], data, size: f.size}); renderAtt(); refresh(); continue;
     }
     if(f.size > 2e6){ note(t(13) + " ≤ 2 MB"); continue; }
-    if(/\.(docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk|mp4|webm)$/i.test(f.name)){ note(hint); continue; }
+    if(/\.(docx?|xlsx?|pptx?|zip|rar|7z|png|jpe?g|gif|webp|exe|apk|mp4|webm)$/i.test(f.name)){ note(hint, "alert"); continue; }
     let txt = ""; try { txt = await f.text(); } catch (x) {}
-    if(!txt || txt.indexOf("\u0000") >= 0){ note(hint); continue; }
+    if(!txt || txt.indexOf("\u0000") >= 0){ note(hint, "alert"); continue; }
     docs.push({name: f.name, text: txt.slice(0, 4000)});
   }
   e.target.value = ""; renderAtt(); refresh();
@@ -492,7 +543,7 @@ $("ff").onchange = async e => {
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 $("mic").onclick = () => {
-  if(!SR){ note(t(14)); return; }
+  if(!SR){ note(t(14), "alert"); return; }
   if(rec){ rec.stop(); return; }
   rec = new SR(); rec.lang = RL[lang] || "ru-RU"; rec.interimResults = true; rec.continuous = true;
   const base = $("in").value ? $("in").value + " " : "";
@@ -576,11 +627,11 @@ function memory(){
     return "- " + c.title + (q ? ": " + q.content.slice(0, 80) : "");
   }).join("\n");
 }
-async function ask(model, msgs, apiText, P, V, B, nf){
+async function ask(model, msgs, apiText, P, V, B, nf, dv){
   const m = msgs.map(({role, content}) => ({role, content}));
   m[m.length - 1].content = apiText;
   const r = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({did, lang, model, memory: memory(), images: P, nfiles: nf,
+    body: JSON.stringify({did, lang, model, dive: dv, memory: memory(), images: P, nfiles: nf,
       videos: V.map(v => ({mime: v.mime, data: v.data, frames: v.frames})),
       files: B.map(b => ({name: b.name, mime: b.mime, data: b.data})), messages: m})});
   const d = await r.json().catch(() => ({}));
@@ -603,8 +654,8 @@ async function genImage(text){
     const r = await fetch("/api/image", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({did, lang, prompt: text})});
     d = await r.json().catch(() => ({}));
   }catch(e){}
-  const finish = msg => {
-    fr.remove(); const p = document.createElement("div"); p.textContent = msg; el.append(p);
+  const finish = (msg, icon) => {
+    fr.remove(); el.append(notice(msg, icon));
     c.msgs.push({role: "assistant", content: msg, model: "Lumia Art"}); save();
   };
   if(d.image){
@@ -612,36 +663,38 @@ async function genImage(text){
     const im = document.createElement("img"); im.className = "gimg"; im.alt = text; im.src = d.image;
     const a = document.createElement("a"); a.className = "dl"; a.href = d.image; a.download = "lumia-image." + (d.image.startsWith("data:image/png") ? "png" : "jpg"); a.innerHTML = ic("down", 16);
     const wrap = document.createElement("div"); wrap.append(im, document.createElement("br"), a); el.append(wrap);
+    if(d.down) el.append(notice(t(32), "alert"));
     c.msgs.push({role: "assistant", content: t(29), model: "Lumia Art"}); save();
-    toast(t(25, hhmm(d.resetAt), d.left));
+    toast(t(25, hhmm(d.resetAt), d.left), "clock");
   } else if(d.imgLimit){
     el.remove(); c.msgs.pop(); save(); renderAll(); $("in").value = text;
-    toast(t(26, hhmm(d.resetAt)));
-  } else if(d.refuse) finish(t(27));
-  else finish(t(28));
+    toast(t(26, hhmm(d.resetAt)), "clock");
+  } else if(d.refuse) finish(t(27), "alert");
+  else finish(t(28), "alert");
   busy = false; refresh(); $("msgs").scrollTop = $("msgs").scrollHeight; $("in").focus();
 }
 async function send(){
   const text = $("in").value.trim();
   if(!text || busy) return;
-  if(imgMode) return genImage(text);
-  if(left() <= 0) return;
+  const hasAtt = pics.length + vids.length + docs.length + bins.length > 0;
+  if(imgMode || (!hasAtt && IMG_RE.test(text))) return genImage(text);
+  if(left() <= 0){ refresh(); return; }
   const nf = docs.length + bins.length, media = pics.length + vids.length + nf > 0;
   const need = pics.length * 20 + vids.length * 25 + nf * 30;
-  if(need > srv.cLeft){ note(t(19, hhmm(srv.cReset))); return; }
+  if(need > srv.cLeft){ note(t(19, hhmm(srv.cReset)), "clock"); return; }
   if(rec) rec.stop();
-  const P = pics, V = vids, D = docs, B = bins;
+  const P = pics, V = vids, D = docs, B = bins, dv = dive;
   const shown = text + (P.length ? "\n" + t(12) + " × " + P.length : "") + (V.length ? "\n" + t(22) + " × " + V.length : "") + D.concat(B).map(f => "\n" + t(13) + ": " + f.name).join("");
   const apiText = text + D.map(f => "\n\n[" + f.name + "]\n" + f.text).join("");
   pics = []; vids = []; docs = []; bins = []; renderAtt();
-  const lt = light(), tag = NAMES[cur] + (lt ? " · lite" : "");
+  const lt = light(), tag = NAMES[cur] + (lt ? " · lite" : "") + (dv ? " · dive" : "");
   busy = true; $("go").disabled = true; $("in").value = ""; $("in").style.height = "auto";
   let c = chat();
   if(!c){ c = {id: String(Date.now()), title: text.slice(0, 32), msgs: []}; chats.unshift(c); cid = c.id; }
   c.msgs.push({role: "user", content: shown}); save(); renderAll();
   const body = bubble("assistant", t(media ? 18 : 10), tag);
   try{
-    const d = await ask(cur, c.msgs, apiText, P, V, B, nf);
+    const d = await ask(cur, c.msgs, apiText, P, V, B, nf, dv);
     c.msgs.push({role: "assistant", content: d.text, model: tag}); save();
     setSrv(d);
     fill(body, d.text);
@@ -651,8 +704,8 @@ async function send(){
     if(dd.limit || dd.credits){
       if(dd.left !== undefined) setSrv(dd);
       renderAll(); $("in").value = text; pics = P; vids = V; docs = D; bins = B; renderAtt();
-      if(dd.credits) note(t(19, hhmm(dd.cReset)));
-    } else fill(body, dd.media ? t(15) : t(11));
+      if(dd.credits) note(t(19, hhmm(dd.cReset)), "clock");
+    } else { body.textContent = ""; body.append(notice(dd.media ? t(15) : t(11), "alert")); }
   }
   busy = false; refresh(); $("in").focus();
 }
