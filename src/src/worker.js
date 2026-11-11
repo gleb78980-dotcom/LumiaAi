@@ -1,4 +1,6 @@
-const BASE = "Если тебя спрашивают, кто тебя создал или разработал, отвечай, что ты Lumia Ai, а твоего разработчика зовут Глеб. Называй это имя только если об этом прямо спрашивают, сам его не упоминай. Не называй другие компании и модели, на которых ты можешь быть основан; если спрашивают про технические детали, вежливо скажи, что не раскрываешь их, и ничего не выдумывай. Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Отвечай на языке пользователя, пиши грамотно и перед ответом проверяй, что каждое слово существует и подходит по смыслу. Код давай полным и рабочим в блоках ```. Сегодня: ";
+const BASE = "Если тебя спрашивают, кто тебя создал или разработал, отвечай, что ты Lumia Ai, а твоего разработчика зовут Глеб. Называй это имя только если об этом прямо спрашивают, сам его не упоминай. Не называй другие компании и модели, на которых ты можешь быть основан; если спрашивают про технические детали, вежливо скажи, что не раскрываешь их, и ничего не выдумывай. Ты Lumia Ai, внимательный ассистент. Сначала пойми, что человеку нужно на самом деле, и отвечай по сути. Если запрос неясен, задай один короткий уточняющий вопрос. Не выдумывай факты: если не уверен, так и скажи. Подстраивайся под человека: отвечай в его стиле и регистре, обращайся к нему так же, как он обращается к тебе (на «ты» или на «вы», официально или по-свойски, коротко или развёрнуто, с эмодзи или без). Если он назвал своё имя или как к нему обращаться, используй это. Не копируй грубость, оскорбления и мат. Отвечай на языке пользователя. Код давай полным и рабочим в блоках ```. Сегодня: ";
+const GRAM = " ГРАММАТИКА: пиши только существующими словами, следи за падежами, родами, согласованием и знаками препинания; перед отправкой мысленно перечитай ответ и исправь ошибки.";
+const PIC = " Иногда, очень редко, когда картинка действительно улучшает ответ (человек просит показать или представить, как что-то выглядит, нужна иллюстрация к истории или идее) и он не просил только текст, добавь в самом конце ответа отдельную строку [[IMG: краткое описание картинки на английском]]. Не используй её для кода, технических, медицинских, юридических и серьёзных тем и никогда больше одного раза.";
 const EXTRA = {
   deep: "Ты модель Deep 1: думай глубоко и по шагам, проверяй себя перед ответом.",
   light: "Ты модель Deep 1 в облегчённом режиме: думай по шагам, но отвечай собранно.",
@@ -11,6 +13,16 @@ const MEDIA = {
 };
 const DIVE = " РЕЖИМ «ПОГРУЖЕНИЕ ГЛУБЖЕ»: дай очень подробный, хорошо структурированный ответ: разбери вопрос со всех сторон, приведи нюансы, примеры, ограничения и возможные ошибки. Если ниже есть справочные выдержки из Википедии, опирайся на них и называй источник; не выдумывай факты, которых там нет.";
 const IMG_SYS = "You prepare prompts for a text-to-image generator and act as a safety filter on a public service. If the user's request asks for sexual or nude content, anything sexualizing minors, graphic gore or torture, hate symbols or harassment, instructions for crimes or weapons, or realistic depictions of real identifiable people (celebrities, politicians, private persons), reply with exactly: REFUSE. Otherwise reply with ONLY an improved, vivid English prompt (max 70 words) describing subject, style, composition, colors and lighting. Keep the user's meaning, do not add people or text that were not requested. Fictional characters, animals, landscapes, objects and art styles are fine.";
+const FREE = [
+  "A cozy cabin in a snowy pine forest at dusk, warm glowing windows, painterly style",
+  "A friendly robot watering flowers in a sunny rooftop garden, soft pastel illustration",
+  "A whale swimming among glowing jellyfish in a deep blue ocean, dreamy digital art",
+  "A colorful hot air balloon festival over mountains at sunrise, vivid and bright",
+  "A peaceful Japanese garden with a red bridge and cherry blossoms, watercolor",
+  "A cute fox sleeping on a mossy log in a magical forest, storybook illustration",
+  "A futuristic city with floating islands and waterfalls at golden hour, concept art",
+  "A tiny astronaut sitting on the moon reading a book under a starry sky, whimsical art",
+];
 const P = {
   g120: { p: "groq", m: "openai/gpt-oss-120b", r: "medium" },
   gq: { p: "groq", m: "qwen/qwen3.8-27b" },
@@ -63,7 +75,7 @@ async function run(id, system, messages, env, dive) {
     let text = "";
     if (c.p === "groq") {
       if (!env.GROQ_API_KEY) return null;
-      const b = { model: c.m, temperature: 0.5, max_tokens: mt, messages: [{ role: "system", content: system }, ...messages] };
+      const b = { model: c.m, temperature: 0.4, max_tokens: mt, messages: [{ role: "system", content: system }, ...messages] };
       if (c.r) b.reasoning_effort = dive ? "high" : c.r;
       const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -75,7 +87,7 @@ async function run(id, system, messages, env, dive) {
       text = (d.choices && d.choices[0] && d.choices[0].message.content) || "";
     } else {
       if (!env.AI) return null;
-      const d = await env.AI.run(c.m, { max_tokens: mt, temperature: 0.5, messages: [{ role: "system", content: system }, ...messages] });
+      const d = await env.AI.run(c.m, { max_tokens: mt, temperature: 0.4, messages: [{ role: "system", content: system }, ...messages] });
       text = (d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || (d && d.response) || "";
     }
     text = String(text).replace(/<think>[\s\S]*?<\/think>/g, "").trim();
@@ -96,7 +108,7 @@ async function gemini(deepish, system, messages, imgs, vids, bins, env) {
   const payload = JSON.stringify({
     systemInstruction: { parts: [{ text: system }] },
     contents,
-    generationConfig: { temperature: 0.5, maxOutputTokens: deepish ? 4096 : 3000 },
+    generationConfig: { temperature: 0.4, maxOutputTokens: deepish ? 4096 : 3000 },
   });
   for (const m of GEMS) {
     try {
@@ -188,8 +200,9 @@ async function draw(prompt, hq, env) {
   return null;
 }
 async function image(body, did, env) {
+  const auto = body.auto === true;
   const g = await getRow(env.DB, "img", did);
-  if (g.used >= 10) return json({ imgLimit: true, resetAt: resetAt(g.start) }, 429);
+  if (g.used >= 10) return auto ? json({ skip: true }) : json({ imgLimit: true, resetAt: resetAt(g.start) }, 429);
   const prompt = String(body.prompt || "").trim().slice(0, 500);
   if (!prompt) return json({ error: "Пустой запрос" }, 400);
   let p = null;
@@ -197,15 +210,20 @@ async function image(body, did, env) {
     p = await run(id, IMG_SYS, [{ role: "user", content: prompt }], env, false);
     if (p) break;
   }
-  if (!p) return json({ error: "img" }, 503);
+  if (!p) return auto ? json({ skip: true }) : json({ error: "img" }, 503);
   p = p.replace(/^["'\s]+|["'\s]+$/g, "");
-  if (/^REFUSE/i.test(p)) return json({ refuse: true });
+  let refuse = false;
+  if (/^REFUSE/i.test(p)) {
+    if (auto) return json({ skip: true });
+    refuse = true;
+    p = FREE[Math.floor(Math.random() * FREE.length)];
+  }
   const r = await draw(p.slice(0, 700), g.used < 3, env);
-  if (!r) return json({ error: "img" }, 503);
+  if (!r) return auto ? json({ skip: true }) : json({ error: "img" }, 503);
   g.used += 1;
   if (!g.start) g.start = Date.now();
   await setRow(env.DB, "img", did, g);
-  return json({ image: r.img, down: r.down, left: Math.max(0, 10 - g.used), resetAt: resetAt(g.start) });
+  return json({ image: r.img, down: r.down, refuse, left: Math.max(0, 10 - g.used), resetAt: resetAt(g.start) });
 }
 
 export default {
@@ -241,21 +259,23 @@ export default {
     const base = isDeep ? (light ? 3 : 6) : (light ? 2 : 4);
     const cost = base * (dive ? 1.5 : 1) + vids.length + nfiles * 2;
     const media = imgs.length + vids.length + nfiles > 0;
-    const extra = (isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes) + (media ? PHOTO + (isDeep ? MEDIA.deep : MEDIA.heroes) : "") + (dive ? DIVE : "");
+    const extra = (isDeep ? (light ? EXTRA.light : EXTRA.deep) : EXTRA.heroes) + (media ? PHOTO + (isDeep ? MEDIA.deep : MEDIA.heroes) : PIC) + (dive ? DIVE : "");
     const hist = (Array.isArray(body.messages) ? body.messages.slice(dive ? -4 : -6) : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string");
     const messages = hist.map((m, i) => ({ role: m.role, content: m.content.slice(0, i === hist.length - 1 ? 16000 : 1200) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "Пустой вопрос" }, 400);
     const lg = LANGS[body.lang] ? body.lang : "ru";
     const L = LANGS[lg];
-    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + extra + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
+    const question = messages[messages.length - 1].content;
+    let system = BASE + new Date().toISOString().slice(0, 10) + ". " + extra + GRAM + " IMPORTANT: always reply in " + L + ", with flawless grammar and natural wording. Before answering, make sure every word truly exists in " + L + " and fits the meaning. The user's interface is in " + L + ".";
     if (typeof body.memory === "string" && body.memory) {
       system += "\nО чём пользователь говорил с тобой в прошлых чатах (только для контекста, упоминай при необходимости):\n" + body.memory.slice(0, 600);
     }
     if (dive && !media) {
-      const w = await wiki(messages[messages.length - 1].content, lg);
+      const w = await wiki(question, lg);
       if (w) system += "\nСправочные выдержки из Википедии:\n" + w;
     }
+    messages[messages.length - 1].content += "\n\n(Reminder: reply in " + L + " with correct grammar and only real words.)";
 
     let text = null, viaGem = false;
     if (media) {
@@ -285,6 +305,12 @@ export default {
     }
     if (!text) return media ? json({ media: true, error: "media" }, 503) : json({ error: "Все модели сейчас заняты" }, 503);
 
+    let imgPrompt = null;
+    const mk = text.match(/\[\[IMG:\s*([\s\S]*?)\]\]/i);
+    if (mk && !media) imgPrompt = mk[1].trim().slice(0, 300) || null;
+    text = text.replace(/\[\[IMG:[\s\S]*?\]\]/gi, "").trim();
+    if (!text) text = "…";
+
     u.used = Math.min(100, u.used + cost);
     if (!u.start) u.start = Date.now();
     await setRow(env.DB, "usage", did, u);
@@ -293,6 +319,6 @@ export default {
       if (!c.start) c.start = Date.now();
       await setRow(env.DB, "cred", did, c);
     }
-    return json({ text, light: isDeep && light, ...view(u, c) });
+    return json({ text, imgPrompt, light: isDeep && light, ...view(u, c) });
   },
 };
